@@ -1,0 +1,223 @@
+import { DataTypes } from "sequelize";
+import sequelize from "./db.js";
+
+// User model
+export const User = sequelize.define(
+  "User",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    linkedinProfileId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    linkedinAccessToken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    linkedinTokenExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "users",
+  }
+);
+
+// Topic model
+export const Topic = sequelize.define(
+  "Topic",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "topics",
+  }
+);
+
+// Schedule model
+export const Schedule = sequelize.define(
+  "Schedule",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: User, // Assuming you have a User model
+        key: "id",
+      },
+    },
+    topicId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: Topic,
+        key: "id",
+      },
+    },
+    frequency: {
+      type: DataTypes.ENUM("daily", "weekly", "monthly"),
+      allowNull: false,
+    },
+    scheduledTime: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+    dayOfWeek: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // 0–6 for weekly schedules
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    lastGeneratedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "schedules",
+  }
+);
+
+// ScheduledPost model
+export const ScheduledPost = sequelize.define(
+  "ScheduledPost",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    scheduleId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: Schedule,
+        key: "id",
+      },
+    },
+    topicId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: Topic,
+        key: "id",
+      },
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    scheduledFor: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "published", "failed"),
+      defaultValue: "pending",
+    },
+    publishedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    linkedinPostId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    retryCount: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    errorMessage: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "scheduled_posts",
+  }
+);
+
+// Define associations
+User.hasMany(Topic, { foreignKey: "userId", onDelete: "CASCADE" });
+Topic.belongsTo(User, { foreignKey: "userId" });
+
+Topic.hasMany(Schedule, { foreignKey: "topicId", onDelete: "CASCADE" });
+Schedule.belongsTo(Topic, { foreignKey: "topicId" });
+
+Schedule.hasMany(ScheduledPost, {
+  foreignKey: "scheduleId",
+  onDelete: "CASCADE",
+});
+ScheduledPost.belongsTo(Schedule, { foreignKey: "scheduleId" });
+
+Topic.hasMany(ScheduledPost, { foreignKey: "topicId", onDelete: "CASCADE" });
+ScheduledPost.belongsTo(Topic, { foreignKey: "topicId" });
