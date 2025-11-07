@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Call Vercel API route
         run: |
-          curl -X POST "https://your-app.vercel.app/api/publish-post" \
+          curl -X POST "https://linkedin-poster-omega.vercel.app/api/publish-post" \
           -H "Content-Type: application/json" \
           -H "Authorization: Bearer ${{ secrets.POST_API_TOKEN }}"
