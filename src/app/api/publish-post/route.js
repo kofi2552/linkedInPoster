@@ -1,3 +1,134 @@
+import { User, ScheduledPost, Schedule, Topic } from "@/lib/models.js";
+import { publishToLinkedIn } from "@/lib/linkedin.js";
+import { generateLinkedInPost } from "@/lib/gemini.js";
+
+export async function publishDuePosts() {
+  const now = new Date();
+  console.log("🕒 Cron job started:", now.toISOString());
+
+  try {
+    // 1️⃣ Fetch all active schedules with their topic and user
+    const schedules = await Schedule.findAll({
+      where: { isActive: true },
+      include: [
+        {
+          model: Topic,
+          include: [User],
+        },
+      ],
+    });
+
+    if (!schedules.length) {
+      console.log("⚠️ No active schedules found.");
+      return;
+    }
+
+    for (const schedule of schedules) {
+      const topic = schedule.Topic;
+      const user = topic?.User;
+      if (!user || !user.linkedinAccessToken) continue;
+
+      const [hours, minutes] = schedule.scheduledTime.split(":").map(Number);
+
+      // Create today's scheduled time
+      const scheduledDate = new Date();
+      scheduledDate.setHours(hours, minutes, 0, 0);
+
+      // Allow small posting window (5 minutes)
+      const windowMs = 5 * 60 * 1000;
+      const timeDiff = now - scheduledDate;
+      const lastGenerated = schedule.lastGeneratedAt || new Date(0);
+
+      let shouldPost = false;
+
+      if (schedule.frequency === "daily") {
+        shouldPost =
+          timeDiff >= 0 &&
+          timeDiff <= windowMs &&
+          lastGenerated < scheduledDate;
+      } else if (schedule.frequency === "weekly") {
+        shouldPost =
+          now.getDay() === schedule.dayOfWeek &&
+          timeDiff >= 0 &&
+          timeDiff <= windowMs &&
+          lastGenerated < scheduledDate;
+      } else if (schedule.frequency === "monthly") {
+        shouldPost =
+          now.getDate() === scheduledDate.getDate() &&
+          timeDiff >= 0 &&
+          timeDiff <= windowMs &&
+          lastGenerated < scheduledDate;
+      }
+
+      if (!shouldPost) continue;
+
+      console.log(`🧠 Generating post for topic "${topic.title}"...`);
+
+      try {
+        // 2️⃣ Generate AI post
+        const content = await generateLinkedInPost(
+          topic.title,
+          topic.description ||
+            "Write a professional, engaging LinkedIn post related to this topic."
+        );
+
+        // 3️⃣ Publish to LinkedIn
+        const result = await publishToLinkedIn(
+          user.linkedinAccessToken,
+          content,
+          user.linkedinProfileId
+        );
+
+        // 4️⃣ Record result
+        if (result.success) {
+          await ScheduledPost.create({
+            scheduleId: schedule.id,
+            topicId: topic.id,
+            content,
+            scheduledFor: scheduledDate,
+            isActive: false,
+            status: "published",
+            publishedAt: now,
+            linkedinPostId: result.postId,
+          });
+
+          await schedule.update({ lastGeneratedAt: now });
+
+          console.log(`✅ Posted successfully for topic "${topic.title}"`);
+        } else {
+          console.warn(
+            `❌ Failed to publish for topic "${topic.title}": ${result.error}`
+          );
+        }
+      } catch (err) {
+        console.error(
+          `🚨 Error generating/publishing for topic "${topic.title}":`,
+          err
+        );
+      }
+    }
+
+    console.log("🎯 Finished checking schedules.");
+  } catch (error) {
+    console.error("Error in publishDuePosts:", error);
+  }
+}
+
+// ✅ Next.js App Router style handler
+export async function GET(req) {
+  const authHeader = req.headers.get("authorization");
+
+  if (authHeader !== `Bearer ${process.env.POST_API_TOKEN}`) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized — invalid or missing token" }),
+      { status: 401 }
+    );
+  }
+
+  await publishDuePosts();
+  return new Response(JSON.stringify({ success: true }), { status: 200 });
+}
+
 // import { Op } from "sequelize";
 // import { ScheduledPost, User } from "@/lib/models.js";
 // import { publishToLinkedIn } from "@/lib/linkedin.js";
@@ -224,10 +355,6 @@
 //   return Response.json({ success: true });
 // }
 
-import { User, ScheduledPost, Schedule, Topic } from "@/lib/models.js";
-import { publishToLinkedIn } from "@/lib/linkedin.js";
-import { generateLinkedInPost } from "@/lib/gemini.js";
-
 // export async function publishDuePosts() {
 //   const now = new Date();
 //   console.log("🕒 Cron job started:", now.toISOString());
@@ -338,121 +465,6 @@ import { generateLinkedInPost } from "@/lib/gemini.js";
 // }
 
 // Route handler (so Vercel cron can trigger it)
-
-export async function publishDuePosts() {
-  const now = new Date();
-  console.log("🕒 Cron job started:", now.toISOString());
-
-  try {
-    // 1️⃣ Fetch all active schedules with their topic and user
-    const schedules = await Schedule.findAll({
-      where: { isActive: true },
-      include: [
-        {
-          model: Topic,
-          include: [User],
-        },
-      ],
-    });
-
-    if (!schedules.length) {
-      console.log("⚠️ No active schedules found.");
-      return;
-    }
-
-    for (const schedule of schedules) {
-      const topic = schedule.Topic;
-      const user = topic?.User;
-      if (!user || !user.linkedinAccessToken) continue;
-
-      const [hours, minutes] = schedule.scheduledTime.split(":").map(Number);
-
-      // Make a Date object for today's scheduled time
-      const scheduledDate = new Date();
-      scheduledDate.setHours(hours, minutes, 0, 0);
-
-      // 5-minute tolerance window
-      const windowMs = 5 * 60 * 1000;
-      const timeDiff = now - scheduledDate;
-
-      const lastGenerated = schedule.lastGeneratedAt || new Date(0);
-
-      let shouldPost = false;
-
-      if (schedule.frequency === "daily") {
-        shouldPost =
-          timeDiff >= 0 &&
-          timeDiff <= windowMs &&
-          lastGenerated < scheduledDate;
-      } else if (schedule.frequency === "weekly") {
-        shouldPost =
-          now.getDay() === schedule.dayOfWeek &&
-          timeDiff >= 0 &&
-          timeDiff <= windowMs &&
-          lastGenerated < scheduledDate;
-      } else if (schedule.frequency === "monthly") {
-        shouldPost =
-          now.getDate() === scheduledDate.getDate() &&
-          timeDiff >= 0 &&
-          timeDiff <= windowMs &&
-          lastGenerated < scheduledDate;
-      }
-
-      if (!shouldPost) continue;
-
-      console.log(`🧠 Generating post for topic "${topic.title}"...`);
-
-      try {
-        const content = await generateLinkedInPost(
-          topic.title,
-          topic.description ||
-            "Write a professional, engaging LinkedIn post related to this topic."
-        );
-
-        const result = await publishToLinkedIn(
-          user.linkedinAccessToken,
-          content,
-          user.linkedinProfileId
-        );
-
-        if (result.success) {
-          await ScheduledPost.create({
-            scheduleId: schedule.id,
-            topicId: topic.id,
-            content,
-            scheduledFor: scheduledDate,
-            isActive: false,
-            status: "published",
-            publishedAt: now,
-            linkedinPostId: result.postId,
-          });
-
-          await schedule.update({ lastGeneratedAt: now });
-
-          console.log(`✅ Posted successfully for topic "${topic.title}"`);
-        } else {
-          console.warn(
-            `❌ Failed to publish for topic "${topic.title}": ${result.error}`
-          );
-        }
-      } catch (err) {
-        console.error(
-          `🚨 Error generating/publishing for topic "${topic.title}":`,
-          err
-        );
-      }
-    }
-
-    console.log("🎯 Finished checking schedules.");
-  } catch (error) {
-    console.error("Error in publishDuePosts:", error);
-  }
-}
-
-export async function GET() {
-  await publishDuePosts();
-  return Response.json({ success: true });
-}
 
 // Utility: calculate next time
 // function getNextScheduledTime(schedule, fromDate) {

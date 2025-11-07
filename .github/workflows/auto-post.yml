@@ -1,0 +1,16 @@
+name: Auto Post Scheduler
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # Runs every 15 minutes
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  run-auto-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel API route
+        run: |
+          curl -X POST "https://your-app.vercel.app/api/publish-post" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer ${{ secrets.POST_API_TOKEN }}"
