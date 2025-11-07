@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function Dashboard() {
+export default function Connect() {
   const [isLinkedInConnected, setIsLinkedInConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
@@ -54,7 +54,12 @@ export default function Dashboard() {
   }
 
   // If connected, nothing to show because redirect will happen
-  if (isLinkedInConnected) return null;
+  if (isLinkedInConnected)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f0f4f8]">
+        <Spinner className="w-8 h-8" />
+      </div>
+    );
 
   // Default page (for users not connected yet)
   return (

@@ -23,7 +23,7 @@ const handler = NextAuth({
 
     async redirect({ url, baseUrl }) {
       // After login, always go to LinkedIn connect
-      return `${baseUrl}`;
+      return `${baseUrl}/connect`;
     },
 
     async session({ session }) {
