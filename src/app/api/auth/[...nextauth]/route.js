@@ -33,7 +33,7 @@ const handler = NextAuth({
       return session;
     },
     pages: {
-      signIn: "/login", // 👈 your custom sign-in route
+      signIn: "/",
     },
   },
 });

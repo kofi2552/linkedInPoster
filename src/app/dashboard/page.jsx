@@ -141,7 +141,7 @@ export default function Dashboard() {
 
             {/* Logout icon slides in on hover */}
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={() => signOut({ callbackUrl: "/" })}
               className="cursor-pointer absolute inset-0 flex items-center justify-center translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-in-out"
             >
               <LogOut className="w-6 h-6 text-gray-600 hover:text-red-500 transition-colors duration-300" />
