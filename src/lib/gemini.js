@@ -86,16 +86,10 @@ export async function generateLinkedInPost(topic, description = "") {
       for (const part of parts) {
         if (part.inlineData?.data) {
           imageBase64 = part.inlineData.data;
-
-          // Save a local copy (optional)
-          const buffer = Buffer.from(imageBase64, "base64");
-          fs.writeFileSync("linkedin-post-image.png", buffer);
-          console.log("✅ Image saved as linkedin-post-image.png");
-
-          break;
+          break; // found the image data, stop inner loop
         }
       }
-      if (imageBase64) break; // stop early if found
+      if (imageBase64) break; // stop outer loop once found
     }
 
     if (!imageBase64) {

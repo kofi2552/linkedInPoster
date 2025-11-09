@@ -27,12 +27,14 @@ export async function POST(req, { params }) {
     }
 
     const PostUserId = user?.linkedinProfileId;
+    const PostUserEmail = user?.email;
 
     // Publish to LinkedIn immediately
     const result = await publishToLinkedIn(
       accessToken,
       post.content,
-      PostUserId
+      PostUserId,
+      PostUserEmail
     );
 
     if (result.success) {
