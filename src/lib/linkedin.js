@@ -1,11 +1,17 @@
 import { User } from "@/lib/models.js";
 
-export async function publishToLinkedIn(accessToken, content, PostuserId) {
-  //console.log("access token being used:", accessToken);
+export async function publishToLinkedIn(
+  accessToken,
+  content,
+  PostuserId,
+  PostUserEmail
+) {
+  //console.log("access token being used:", accessToken, PostuserId);
 
   try {
     let authorUrn = null;
-    let response = null;
+    let imageUrn = null;
+    const { post, imageBase64 } = content;
 
     // ✅ If we already have the LinkedIn user ID stored
     if (PostuserId) {
@@ -39,39 +45,109 @@ export async function publishToLinkedIn(accessToken, content, PostuserId) {
       // Optional: store the LinkedIn ID in your DB for next time
       await User.update(
         { linkedinProfileId: meData.sub },
-        { where: { id: PostuserId } }
+        { where: { email: PostUserEmail } }
       );
     }
 
+    function formatPostText(rawText) {
+      return rawText
+        .replace(/\r\n/g, "\n") // normalize line endings
+        .replace(/\n{3,}/g, "\n\n") // prevent too many blank lines
+        .trim();
+    }
+    const formattedPost = formatPostText(post);
+    // 🖼 Upload image if provided
+    if (imageBase64) {
+      //console.log("Uploading image to LinkedIn...");
+
+      // Step 1: Register upload
+      const registerRes = await fetch(
+        "https://api.linkedin.com/v2/assets?action=registerUpload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            registerUploadRequest: {
+              recipes: ["urn:li:digitalmediaRecipe:feedshare-image"],
+              owner: authorUrn,
+              serviceRelationships: [
+                {
+                  relationshipType: "OWNER",
+                  identifier: "urn:li:userGeneratedContent",
+                },
+              ],
+            },
+          }),
+        }
+      );
+
+      const registerData = await registerRes.json();
+
+      if (!registerRes.ok) {
+        throw new Error(
+          `Failed to register image upload: ${
+            registerData.message || registerRes.statusText
+          }`
+        );
+      }
+
+      const uploadUrl =
+        registerData.value.uploadMechanism[
+          "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"
+        ].uploadUrl;
+      imageUrn = registerData.value.asset;
+
+      // Step 2: Upload image
+      const buffer = Buffer.from(imageBase64, "base64");
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: buffer,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error(`Failed to upload image: ${uploadRes.statusText}`);
+      }
+
+      //console.log("✅ Image uploaded:", imageUrn);
+    }
+
+    // 📝 Step 3: Publish post
+    const postBody = {
+      author: authorUrn,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary: { text: formattedPost },
+          shareMediaCategory: imageUrn ? "IMAGE" : "NONE",
+          media: imageUrn ? [{ status: "READY", media: imageUrn }] : [],
+        },
+      },
+      visibility: {
+        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+      },
+    };
+
     // ✅ Now create the LinkedIn post
-    response = await fetch("https://api.linkedin.com/v2/ugcPosts", {
+    const postRes = await fetch("https://api.linkedin.com/v2/ugcPosts", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
         "X-Restli-Protocol-Version": "2.0.0",
       },
-      body: JSON.stringify({
-        author: authorUrn,
-        lifecycleState: "PUBLISHED",
-        specificContent: {
-          "com.linkedin.ugc.ShareContent": {
-            shareCommentary: { text: content },
-            shareMediaCategory: "NONE",
-          },
-        },
-        visibility: {
-          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
-        },
-      }),
+      body: JSON.stringify(postBody),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
+    if (!postRes.ok) {
+      const error = await postRes.json();
       throw new Error(error.message || "Failed to publish to LinkedIn");
     }
 
-    const data = await response.json();
+    const data = await postRes.json();
     console.log("✅ LinkedIn post created:", data);
 
     return { success: true, postId: data.id };

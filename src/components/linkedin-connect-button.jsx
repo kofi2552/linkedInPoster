@@ -55,7 +55,7 @@ export function LinkedInConnectButton({ userId, isConnected, onConnected }) {
       ) : (
         <>
           <Linkedin className="w-4 h-4 mr-2" />
-          Connect LinkedIn
+          Connect To LinkedIn
         </>
       )}
     </Button>
