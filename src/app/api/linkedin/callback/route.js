@@ -19,7 +19,7 @@ export async function GET(request) {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, "base64").toString());
 
-    console.log("LinkedIn callback received for userId:", userId);
+    //console.log("LinkedIn callback received for userId:", userId);
 
     // Exchange code for access token
     const tokenResponse = await fetch(
@@ -45,7 +45,7 @@ export async function GET(request) {
 
     const tokenData = await tokenResponse.json();
 
-    console.log("LinkedIn token data received:", tokenData);
+    //console.log("LinkedIn token data received:", tokenData);
 
     // Update user with LinkedIn tokens
     const user = await User.findByPk(userId);

@@ -30,6 +30,14 @@ export async function POST(request) {
     const { userId, topicId, frequency, scheduledTime, dayOfWeek } =
       await request.json();
 
+    console.log("Creating schedule with:", {
+      userId,
+      topicId,
+      frequency,
+      scheduledTime,
+      dayOfWeek,
+    });
+
     if (!topicId || !frequency || !scheduledTime) {
       return Response.json(
         { error: "topicId, frequency, and scheduledTime are required" },
@@ -68,7 +76,7 @@ export async function POST(request) {
       scheduleId: schedule.id,
       userId,
       topicId,
-      content: content,
+      content: content.post,
       scheduledFor: next,
       isActive: false,
       status: "pending",
