@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +10,9 @@ import { PostQueue } from "@/components/post-queue";
 import { Spinner } from "@/components/ui/spinner";
 import { LogOut, UserCircle } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
+
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
 export default function Dashboard() {
   const [userId, setUserId] = useState(null);
@@ -49,6 +52,26 @@ export default function Dashboard() {
     };
 
     initUser();
+  }, []);
+
+  useEffect(() => {
+    const initDB = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/db-status`);
+        const data = await res.json();
+
+        if (data.success) {
+          console.log("✅ Database initialized successfully");
+        } else {
+          console.log(`❌ Failed: ${data.error}`);
+        }
+      } catch (err) {
+        console.log("⚠️ Error connecting to backend");
+        console.error(err);
+      }
+    };
+
+    initDB();
   }, []);
 
   const handleTopicsCreated = (newTopics) => {
