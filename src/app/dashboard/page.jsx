@@ -135,6 +135,33 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-6 space-y-8">
         {/* Header */}
+        <div className="block lg:hidden relative  flex items-center justify-between w-full h-[50px] p-2 overflow-hidden">
+          {/* Profile Image or fallback */}
+          <div className="flex items-center justify-center transition-transform duration-500 ease-in-out">
+            {session?.user?.image ? (
+              <Image
+                src={session.user.image}
+                alt="Profile"
+                width={40}
+                height={40}
+                className="rounded-full border border-gray-300 shadow-sm"
+              />
+            ) : (
+              <UserCircle
+                className="w-10 h-10 text-gray-400 transition-transform duration-300 group-hover:translate-x-2"
+                color="#777"
+              />
+            )}
+          </div>
+
+          {/* Logout icon slides in on hover */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="cursor-pointer flex items-center justify-center  transition-transform duration-500 ease-in-out"
+          >
+            <LogOut className="w-6 h-6 text-gray-600 hover:text-red-500 transition-colors duration-300" />
+          </button>
+        </div>
         <div className="space-y-2 flex flex-col md:flex-row md:justify-between md:items-center text-center md:text-left">
           <div className="py-2">
             <h1 className="text-2xl font-bold">LinkedIn Scheduler</h1>
@@ -143,7 +170,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="relative group flex items-center justify-center w-[50px] h-[50px] overflow-hidden">
+          <div className="hidden lg:block relative group flex items-center justify-center w-[50px] h-[50px] overflow-hidden">
             {/* Profile Image or fallback */}
             <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 ease-in-out group-hover:-translate-x-full">
               {session?.user?.image ? (

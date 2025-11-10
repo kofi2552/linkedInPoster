@@ -68,7 +68,7 @@ export async function generateLinkedInPost(topic, description = "") {
     //console.log("Generated post content:", post);
 
     // 2️⃣ Generate matching image
-    const imagePrompt = `Genrate a professional background image related to ${topic}. It should be suitable for a professional LinkedIn post. The style should be clean, modern, and visually appealing to educational tech professionals and leaders. Avoid using any text or logos in the image. Use a color palette that is engaging yet professional. Strict size: "1024x1024"`;
+    const imagePrompt = `Genrate a professional image related to ${topic}. It should be suitable for a professional LinkedIn post. The style should be clean, modern, and visually appealing to educational tech professionals and leaders. Avoid using any text or logos in the image. Use a color palette that is engaging yet professional. Create real-life concept images with real people or things in line with topic not just generic tech background images.Strict size: "1024x1024"`;
 
     const imageResponse = await ai.models.generateContent({
       model: "gemini-2.0-flash-preview-image-generation",
