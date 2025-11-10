@@ -1,5 +1,5 @@
 import { ScheduledPost, User } from "@/lib/models.js";
-import { publishToLinkedIn } from "@/lib/linkedin.js";
+import { publishNowToLinkedIn } from "@/lib/linkedin.js";
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 
@@ -29,8 +29,19 @@ export async function POST(req, { params }) {
     const PostUserId = user?.linkedinProfileId;
     const PostUserEmail = user?.email;
 
+    console.log(
+      `🚀 Publishing post for user with id: ${PostUserId} and email: ${PostUserEmail} to LinkedIn`
+    );
+
+    if (!PostUserEmail || !PostUserId) {
+      console.error("🚨 User id and email missing");
+      return Response.json(
+        { error: "User id and email missing" },
+        { status: 500 }
+      );
+    }
     // Publish to LinkedIn immediately
-    const result = await publishToLinkedIn(
+    const result = await publishNowToLinkedIn(
       accessToken,
       post.content,
       PostUserId,

@@ -1,13 +1,109 @@
 import { User } from "@/lib/models.js";
 
+export async function publishNowToLinkedIn(
+  accessToken,
+  content,
+  PostuserId,
+  PostUserEmail
+) {
+  console.log("posting content: ", content);
+
+  try {
+    let authorUrn = null;
+
+    // ✅ Use stored LinkedIn user ID if available
+    if (PostuserId) {
+      authorUrn = `urn:li:person:${PostuserId}`;
+    } else {
+      // ✅ Otherwise, fetch user info from LinkedIn
+      const meResponse = await fetch("https://api.linkedin.com/v2/userinfo", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "X-Restli-Protocol-Version": "2.0.0",
+        },
+      });
+
+      if (!meResponse.ok) {
+        const error = await meResponse.json();
+        throw new Error(
+          error.message || "Failed to fetch LinkedIn user profile"
+        );
+      }
+
+      const meData = await meResponse.json();
+
+      if (!meData?.sub) {
+        throw new Error("Missing 'sub' field in LinkedIn profile data.");
+      }
+
+      authorUrn = `urn:li:person:${meData.sub}`;
+      console.log("LinkedIn author URN:", authorUrn);
+
+      // Optional: persist LinkedIn ID for next time
+      await User.update(
+        { linkedinProfileId: meData.sub },
+        { where: { email: PostUserEmail } }
+      );
+    }
+
+    // ✅ Clean up and format the post text
+    function formatPostText(rawText) {
+      return rawText
+        .replace(/\*/g, "") // remove all asterisks
+        .replace(/\r\n/g, "\n") // normalize line endings
+        .replace(/\n{3,}/g, "\n\n") // limit excessive blank lines
+        .trim();
+    }
+
+    const formattedPost = formatPostText(content);
+
+    // 📝 Build text-only LinkedIn post body
+    const postBody = {
+      author: authorUrn,
+      lifecycleState: "PUBLISHED",
+      specificContent: {
+        "com.linkedin.ugc.ShareContent": {
+          shareCommentary: { text: formattedPost },
+          shareMediaCategory: "NONE", // 🚫 no image
+        },
+      },
+      visibility: {
+        "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+      },
+    };
+
+    // ✅ Publish the post
+    const postRes = await fetch("https://api.linkedin.com/v2/ugcPosts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "X-Restli-Protocol-Version": "2.0.0",
+      },
+      body: JSON.stringify(postBody),
+    });
+
+    if (!postRes.ok) {
+      const error = await postRes.json();
+      throw new Error(error.message || "Failed to publish to LinkedIn");
+    }
+
+    const data = await postRes.json();
+    console.log("✅ LinkedIn post created:", data);
+
+    return { success: true, postId: data.id };
+  } catch (error) {
+    console.error("🚨 LinkedIn publishing error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function publishToLinkedIn(
   accessToken,
   content,
   PostuserId,
   PostUserEmail
 ) {
-  //console.log("access token being used:", accessToken, PostuserId);
-
   try {
     let authorUrn = null;
     let imageUrn = null;

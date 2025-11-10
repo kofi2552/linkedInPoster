@@ -109,9 +109,12 @@ export default function Connect() {
 
         {/* RIGHT COLUMN — Animated Steps */}
         <div className="bg-gray-50 flex flex-col justify-center p-6 md:p-10 relative overflow-hidden">
-          <h2 className="text-xl md:text-2xl font-medium mb-0 text-center text-muted-foreground">
-            How It Works
+          <h2 className="text-lg md:text-xl font-medium mb-0 text-center text-muted-foreground">
+            <span className="inline-block border border-gray-200 px-6 py-1 rounded-xl shadow">
+              How It Works
+            </span>
           </h2>
+
           <div className="relative h-[210px] flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.p
@@ -120,7 +123,7 @@ export default function Connect() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.6 }}
-                className="text-lg md:text-4xl text-center text-muted-foreground font-bold max-w-md"
+                className="text-lg md:text-4xl text-center text-blue-500 font-bold max-w-md"
               >
                 {steps[currentStep]}
               </motion.p>
