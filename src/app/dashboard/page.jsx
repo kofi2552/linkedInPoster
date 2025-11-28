@@ -233,6 +233,9 @@ export default function Dashboard() {
                     key={topic.id}
                     topic={topic}
                     onScheduleCreated={handleScheduleCreated}
+                    onDeleted={(id) =>
+                      setTopics((prev) => prev.filter((t) => t.id !== id))
+                    }
                   />
                 ))}
               </div>

@@ -202,7 +202,7 @@ export function PostQueue({
               </p>
             )}
 
-            {post.status === "pending" && (
+            {post.status === "pending" ? (
               <div className="flex gap-4">
                 <Button
                   onClick={() => handleEditClick(post)}
@@ -238,6 +238,16 @@ export function PostQueue({
                   )}
                 </Button>
               </div>
+            ) : (
+              <Button
+                onClick={() => handleDeleteClick(post.id)}
+                variant="outline"
+                size="sm"
+                className="w-xs py-2 flex-1 bg-transparent text-destructive hover:text-destructive cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
             )}
           </Card>
         ))}
