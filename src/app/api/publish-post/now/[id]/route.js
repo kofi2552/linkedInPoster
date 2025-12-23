@@ -19,6 +19,9 @@ export async function POST(req, { params }) {
 
     // Find the user who owns the post
     const user = await User.findByPk(post.userId);
+
+    console.log("post user: ", user);
+
     if (!user || !user.linkedinAccessToken) {
       return Response.json(
         { error: "User not connected to LinkedIn" },
@@ -33,12 +36,9 @@ export async function POST(req, { params }) {
       `🚀 Publishing post for user with id: ${PostUserId} and email: ${PostUserEmail} to LinkedIn`
     );
 
-    if (!PostUserEmail || !PostUserId) {
-      console.error("🚨 User id and email missing");
-      return Response.json(
-        { error: "User id and email missing" },
-        { status: 500 }
-      );
+    if (!PostUserEmail) {
+      console.error("🚨 User email missing");
+      return Response.json({ error: "User email missing" }, { status: 500 });
     }
     // Publish to LinkedIn immediately
     const result = await publishNowToLinkedIn(
