@@ -11,6 +11,9 @@ export const metadata = {
   title: "PostPilot",
   description: "Automate your LinkedIn posts with AI-generated content",
   generator: "PostPilot.app",
+  icons: {
+    icon: "/images/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }) {
