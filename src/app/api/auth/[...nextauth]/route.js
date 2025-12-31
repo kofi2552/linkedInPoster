@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { User } from "../../../../lib/models.js";
 import sequelize from "../../../../lib/db.js";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -13,7 +13,7 @@ const handler = NextAuth({
 
   callbacks: {
     async signIn({ user }) {
-      await sequelize.sync();
+      await sequelize.sync({ alter: true });
       const [existingUser, created] = await User.findOrCreate({
         where: { email: user.email },
         defaults: { email: user.email },
@@ -21,21 +21,32 @@ const handler = NextAuth({
       return true;
     },
 
-    async redirect({ url, baseUrl }) {
-      // After login, always go to LinkedIn connect
-      return `${baseUrl}/connect`;
-    },
-
     async session({ session }) {
       const user = await User.findOne({ where: { email: session.user.email } });
-      session.user.id = user?.id;
-      session.user.linkedinConnected = !!user?.linkedinAccessToken;
+      if (user) {
+        // Auto-expire premium if date has passed
+        if (user.isPremium && user.premiumExpiresAt && new Date(user.premiumExpiresAt) < new Date()) {
+          console.log(`Premium expired for user ${user.email}. Revoking status.`);
+          user.isPremium = false;
+          user.premiumExpiresAt = null;
+          user.premiumStartedAt = null;
+          await user.save();
+        }
+
+        session.user.id = user.id;
+        session.user.linkedinConnected = !!user.linkedinAccessToken;
+        session.user.isAdmin = user.isAdmin;
+        session.user.isPremium = user.isPremium;
+        session.user.phoneNumber = user.phoneNumber;
+      }
       return session;
     },
-    pages: {
-      signIn: "/",
-    },
   },
-});
+  pages: {
+    signIn: "/",
+  },
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

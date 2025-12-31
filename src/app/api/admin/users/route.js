@@ -1,0 +1,89 @@
+import { NextResponse } from "next/server";
+import { User } from "@/lib/models.js";
+import sequelize from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export async function GET(request) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        await sequelize.sync();
+
+        // Strict Database Check for Admin Status
+        const requestingUser = await User.findOne({ where: { email: session.user.email } });
+        if (!requestingUser || !requestingUser.isAdmin) {
+            return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+        }
+
+        const users = await User.findAll({
+            order: [["createdAt", "DESC"]],
+            attributes: { exclude: ["linkedinAccessToken"] }
+        });
+        return NextResponse.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+    }
+}
+
+export async function PATCH(request) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const body = await request.json();
+        const { userId, isPremium, premiumExpiresAt, isAdmin } = body;
+
+        if (!userId) {
+            return NextResponse.json({ error: "User ID required" }, { status: 400 });
+        }
+
+        await sequelize.sync();
+
+        // Strict Database Check for Admin Status
+        const requestingUser = await User.findOne({ where: { email: session.user.email } });
+
+        // Allow access if:
+        // 1. User is an Admin
+        // 2. OR User is updating THEMSELVES (Dev Feature: "Grant/Revoke Admin")
+        const isSelfUpdate = requestingUser && requestingUser.id === userId;
+
+        if (!requestingUser || (!requestingUser.isAdmin && !isSelfUpdate)) {
+            return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        if (isPremium !== undefined) {
+            user.isPremium = isPremium;
+            if (isPremium) {
+                const now = new Date();
+                const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                user.premiumStartedAt = now;
+                user.premiumExpiresAt = thirtyDaysLater;
+            } else {
+                user.premiumStartedAt = null;
+                user.premiumExpiresAt = null;
+            }
+        }
+
+        if (premiumExpiresAt !== undefined) user.premiumExpiresAt = premiumExpiresAt;
+        if (isAdmin !== undefined) user.isAdmin = isAdmin;
+
+        await user.save();
+
+        return NextResponse.json({ success: true, user });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    }
+}

@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
-import { Buffer } from "buffer";
 import pg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -10,34 +9,23 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const caCert = Buffer.from(process.env.AIVEN_CA_CERT, "base64").toString(
-  "utf-8"
-);
-
-const sequelize = new Sequelize({
-  username: process.env.AIVEN_DB_USERNAME,
-  password: process.env.AIVEN_DB_PASSWORD,
-  host: process.env.AIVEN_DB_HOST,
-  port: process.env.AIVEN_DB_PORT,
-  database: "defaultdb",
+const sequelize = new Sequelize(process.env.RENDER_DATABASE_URL, {
   dialect: "postgres",
   dialectModule: pg,
+  protocol: "postgres",
+  logging: false,
   pool: {
     max: 5,
     min: 0,
     acquire: 30000,
     idle: 10000,
   },
-  dialectOptions: caCert
-    ? {
-        ssl: {
-          require: true,
-          rejectUnauthorized: true,
-          ca: caCert,
-        },
-      }
-    : {},
-  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // REQUIRED for Render
+    },
+  },
 });
 
 export default sequelize;

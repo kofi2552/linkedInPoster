@@ -1,4 +1,5 @@
 import { generateLinkedInPost } from "@/lib/gemini.js"
+import { generateImage } from "@/lib/image.js"
 import { Topic, Schedule, ScheduledPost } from "@/lib/models.js"
 import { addDays, addMonths, setHours, setMinutes, startOfDay } from "date-fns"
 
@@ -51,6 +52,24 @@ export async function POST(request) {
     // Generate LinkedIn post using Gemini
     const content = await generateLinkedInPost(topic.title, topic.description)
 
+    let imageBase64 = null;
+    if (topic.includeImage) {
+      try {
+        console.log("Generating image for topic:", topic.title);
+        // Use Gemini to create an image prompt based on the topic
+        const imagePrompt = `Generate a prompt for an AI image generator to create a professional LinkedIn post image about: "${topic.title}". The image should be modern, clean, and suitable for a business audience. No text in the image. Return only the prompt string.`;
+
+        const promptResponse = await generateLinkedInPost(imagePrompt, "Keep it under 200 characters, descriptive but concise.");
+        const finalPrompt = promptResponse.post || `${topic.title} professional linkedin background, clean, modern, 4k`;
+
+        console.log("Image Prompt:", finalPrompt);
+        imageBase64 = await generateImage(finalPrompt);
+      } catch (imgError) {
+        console.error("Failed to generate image:", imgError);
+        // We continue without image if generation fails
+      }
+    }
+
     // Calculate next scheduled date
     const nextScheduledDate = getNextScheduledDate(schedule.frequency, schedule.scheduledTime, schedule.dayOfWeek)
 
@@ -58,9 +77,10 @@ export async function POST(request) {
     const scheduledPost = await ScheduledPost.create({
       scheduleId,
       topicId,
-      content,
+      content: content.post || content, // Handle object or string return
       scheduledFor: nextScheduledDate,
       status: "pending",
+      imageBase64: imageBase64
     })
 
     // Update schedule's lastGeneratedAt

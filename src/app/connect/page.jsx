@@ -32,45 +32,7 @@ export default function Connect() {
     return () => clearInterval(interval);
   }, [steps.length]);
 
-  // useEffect(() => {
-  //   if (status === "unauthenticated" || session === null) {
-  //     signIn("google");
-  //     return;
-  //   }
 
-  //   if (status === "loading") return;
-
-  //   const verifyLinkedInConnection = async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `/api/linkedin/check-token?userId=${session.user.id}`
-  //       );
-  //       const data = await res.json();
-
-  //       if (data.connected) {
-  //         setIsLinkedInConnected(true);
-  //         router.replace("/dashboard");
-  //       }
-  //     } catch (error) {
-  //       console.error("LinkedIn check error:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   if (session?.user?.id) {
-  //     verifyLinkedInConnection();
-  //   }
-  // }, [status, session, router]);
-
-  // //🌀 Show loader while checking Google login or LinkedIn connection
-  // if (status === "loading" || session?.user === undefined || isLoading) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen">
-  //       <Spinner className="w-8 h-8" />
-  //     </div>
-  //   );
-  // }
 
   // If connected, nothing to show because redirect will happen
   if (isLinkedInConnected)

@@ -1,5 +1,6 @@
 import { Schedule, ScheduledPost, Topic } from "@/lib/models.js";
 import { generateLinkedInPost } from "@/lib/gemini.js";
+import { generateImage } from "@/lib/image.js";
 
 // GET all schedules for a topic
 export async function GET(request) {
@@ -60,18 +61,37 @@ export async function POST(request) {
     const content = await generateLinkedInPost(
       topic.title,
       topic.description ||
-        "Generate a short engaging linkedin-style post like a professional in the educational tech sector."
+      "Generate a short engaging linkedin-style post like a professional in the educational tech sector."
     );
+
+    let imageBase64 = null;
+    if (topic.includeImage) {
+      try {
+        console.log("Generating image for topic:", topic.title);
+        // Use Gemini to create an image prompt based on the topic
+        const imagePrompt = `Generate a prompt for an AI image generator to create a professional LinkedIn post image about: "${topic.title}". The image should be modern, clean, and suitable for a business audience. No text in the image. Return only the prompt string.`;
+
+        const promptResponse = await generateLinkedInPost(imagePrompt, "Keep it under 200 characters, descriptive but concise.");
+        const finalPrompt = promptResponse.post || `${topic.title} professional linkedin background, clean, modern, 4k`;
+
+        console.log("Image Prompt:", finalPrompt);
+        imageBase64 = await generateImage(finalPrompt);
+      } catch (imgError) {
+        console.error("Failed to generate image:", imgError);
+        // We continue without image if generation fails
+      }
+    }
 
     // 4️⃣ Create ScheduledPost (inactive, pending)
     await ScheduledPost.create({
       scheduleId: schedule.id,
       userId,
       topicId,
-      content: content.post,
+      content: content.post || content,
       scheduledFor: next,
       isActive: false,
       status: "pending",
+      imageBase64: imageBase64,
     });
 
     return Response.json(schedule, { status: 201 });

@@ -41,11 +41,15 @@ export async function POST(req, { params }) {
       return Response.json({ error: "User email missing" }, { status: 500 });
     }
     // Publish to LinkedIn immediately
+    console.log("Publishing post. content length:", post.content.length);
+    console.log("Has imageBase64?", !!post.imageBase64, post.imageBase64 ? post.imageBase64.length : 0);
+
     const result = await publishNowToLinkedIn(
       accessToken,
       post.content,
       PostUserId,
-      PostUserEmail
+      PostUserEmail,
+      post.imageBase64 // Pass the image data if available
     );
 
     if (result.success) {

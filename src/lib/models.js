@@ -27,6 +27,42 @@ export const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    profession: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    industry: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    tone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    bio: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isPremium: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    premiumStartedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    premiumExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -66,6 +102,15 @@ export const Topic = sequelize.define(
     description: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    postLength: {
+      type: DataTypes.ENUM("short", "medium", "long"),
+      defaultValue: "short",
+      allowNull: true,
+    },
+    includeImage: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -195,6 +240,10 @@ export const ScheduledPost = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    imageBase64: {
+      type: DataTypes.TEXT, // Supports large base64 strings (Postgres TEXT represents generic unlimited length string)
+      allowNull: true,
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -217,6 +266,7 @@ Schedule.hasMany(ScheduledPost, {
   foreignKey: "scheduleId",
   onDelete: "CASCADE",
 });
+
 ScheduledPost.belongsTo(Schedule, { foreignKey: "scheduleId" });
 
 Topic.hasMany(ScheduledPost, { foreignKey: "topicId", onDelete: "CASCADE" });
