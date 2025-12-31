@@ -45,7 +45,7 @@ export async function POST(req, { params }) {
     console.log("Has imageBase64?", !!post.imageBase64, post.imageBase64 ? post.imageBase64.length : 0);
 
     const result = await publishNowToLinkedIn(
-      accessToken,
+      user.linkedinAccessToken, // ✅ Use the user's stored access token
       post.content,
       PostUserId,
       PostUserEmail,

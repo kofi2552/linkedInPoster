@@ -139,7 +139,7 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold text-foreground/80 ml-1">
-                  Style & Context
+                  Style
                 </label>
                 <div className="bg-muted/50 p-1 rounded-lg inline-flex">
                   <button
