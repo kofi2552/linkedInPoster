@@ -52,8 +52,6 @@ export default function AdminPage() {
         }
     };
 
-    console.log("AdminPage Render: Status =", status, "Users =", users.length);
-    console.log("Users fetched successfully:", users);
 
     // In a real app, middleware or server-side check is safer.
     // Here we do a simple client-side check + the API should verify too.
