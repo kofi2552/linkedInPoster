@@ -145,27 +145,7 @@ export function ProfileSettings({ userId, userEmail, userName, user, onUpgrade }
                     </Button>
                 </form>
 
-                {/* Developer Tools - For testing Admin features */}
-                <div className="pt-6 mt-6 border-t border-dashed">
-                    <p className="text-xs font-mono text-muted-foreground mb-2">Developer Tools</p>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={async () => {
-                                await fetch("/api/admin/users", {
-                                    method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ userId, isAdmin: !user?.isAdmin }),
-                                });
-                                window.location.reload();
-                            }}
-                            className="text-xs text-muted-foreground hover:text-foreground border border-dashed"
-                        >
-                            {user?.isAdmin ? "🚫 Revoke Admin Access" : "⚡ Grant Admin Access"} (Dev Only)
-                        </Button>
-                    </div>
-                </div>
+
             </Card>
         </div>
     );

@@ -44,7 +44,7 @@ export async function PATCH(request) {
             return NextResponse.json({ error: "User ID required" }, { status: 400 });
         }
 
-        await sequelize.sync();
+        // await sequelize.sync();
 
         // Strict Database Check for Admin Status
         const requestingUser = await User.findOne({ where: { email: session.user.email } });
@@ -52,9 +52,9 @@ export async function PATCH(request) {
         // Allow access if:
         // 1. User is an Admin
         // 2. OR User is updating THEMSELVES (Dev Feature: "Grant/Revoke Admin")
-        const isSelfUpdate = requestingUser && requestingUser.id === userId;
+        // const isSelfUpdate = requestingUser && requestingUser.id === userId;
 
-        if (!requestingUser || (!requestingUser.isAdmin && !isSelfUpdate)) {
+        if (!requestingUser || (!requestingUser.isAdmin)) {
             return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
         }
 

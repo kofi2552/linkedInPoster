@@ -53,7 +53,7 @@ export default function LandingPage() {
               </Link>
             ) : (
               <Link href="/login">
-                <Button variant="outline">Login</Button>
+                <Button variant="outline">Get Started</Button>
               </Link>
             )}
           </div>
