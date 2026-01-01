@@ -2,16 +2,21 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Trash2, Loader2, CalendarClock, Activity, Calendar } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Loader2, CalendarClock, Activity, Calendar, Pencil, Check, X } from "lucide-react";
 import { ScheduleForm } from "./schedule-form";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input"; // Import Input
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea
 import { format } from "date-fns";
 
 export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConnected }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // New State
+  const [editTitle, setEditTitle] = useState(topic.title); // New State
+  const [editDescription, setEditDescription] = useState(topic.description); // New State
   const { toast } = useToast();
 
   const activeSchedule = topic.Schedules?.[0]; // Assuming one schedule for now
@@ -47,6 +52,50 @@ export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConne
     }
   }
 
+  async function handleSave(e) {
+    if (e) e.stopPropagation();
+
+    try {
+      const res = await fetch(`/api/topics/${topic.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editTitle,
+          description: editDescription
+        })
+      });
+
+      if (res.ok) {
+        toast({ title: "Topic Updated", description: "Changes saved successfully." });
+        setIsEditing(false);
+        // Ideally we should update the parent state or re-fetch, but for now we can rely on local state 
+        // update if we were passing a setTopic prop, but here we might need to assume the parent refreshes 
+        // or we just update the local display values by mutating the prop (bad practice) or just rely on the inputs.
+        // Actually, best practice: tell parent to refresh.
+        // But since 'topic' prop is fixed, we should probably stick to `editTitle` for display if not editing?
+        // A quick fix: force a window reload or better, use a callback if provided.
+        // For this task, I'll update the 'topic' object locally by modifying the prop object (shallow) 
+        // so it reflects immediately without full reload if the parent doesn't re-render.
+        topic.title = editTitle;
+        topic.description = editDescription;
+      } else {
+        throw new Error("Failed to update");
+      }
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Could not save changes." });
+    }
+  }
+
+  function toggleEdit(e) {
+    if (e) e.stopPropagation();
+    setIsEditing(!isEditing);
+    if (!isEditing) {
+      // Reset to current values when opening edit
+      setEditTitle(topic.title);
+      setEditDescription(topic.description);
+    }
+  }
+
   function getScheduleSummary() {
     if (!activeSchedule) return "No automated schedule";
     if (!activeSchedule.isActive) return "Schedule paused";
@@ -78,24 +127,46 @@ export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConne
       >
         <div className="flex-1 space-y-3">
           <div className="flex items-center gap-3">
-            <h3 className="text-xl font-semibold tracking-tight text-foreground/90 group-hover:text-primary transition-colors">
-              {topic.title}
-            </h3>
-            {activeSchedule?.isActive ? (
-              <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200 text-[10px] px-2 h-5">
-                Active
-              </Badge>
+            {isEditing ? (
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="font-semibold text-lg max-w-md h-9"
+                onClick={(e) => e.stopPropagation()}
+              />
             ) : (
-              <Badge variant="secondary" className="text-muted-foreground text-[10px] px-2 h-5">
-                Draft
-              </Badge>
+              <h3 className="text-xl font-semibold tracking-tight text-foreground/90 group-hover:text-primary transition-colors">
+                {topic.title}
+              </h3>
+            )}
+
+            {!isEditing && (
+              activeSchedule?.isActive ? (
+                <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200 text-[10px] px-2 h-5">
+                  Active
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="text-muted-foreground text-[10px] px-2 h-5">
+                  Draft
+                </Badge>
+              )
             )}
           </div>
 
-          {topic.description && (
-            <p className="text-sm text-foreground/60 leading-relaxed max-w-2xl line-clamp-2">
-              {topic.description}
-            </p>
+          {(isEditing || topic.description) && (
+            isEditing ? (
+              <Textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                className="text-sm max-w-xl"
+                placeholder="Topic description..."
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <p className="text-sm text-foreground/60 leading-relaxed max-w-2xl line-clamp-2">
+                {topic.description}
+              </p>
+            )
           )}
 
           {/* Metadata Bar - Visible when collapsed/expanded */}
@@ -113,19 +184,50 @@ export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConne
         </div>
 
         <div className="flex items-center gap-3 self-start md:self-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDelete}
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors z-10"
-            aria-label="Delete topic"
-          >
-            {isDeleting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Trash2 className="w-5 h-5" />
-            )}
-          </Button>
+          {isEditing ? (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSave}
+                className="text-green-600 hover:text-green-700 hover:bg-green-100 transition-colors z-10"
+              >
+                <Check className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleEdit}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted transition-colors z-10"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleEdit}
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors z-10"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDelete}
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors z-10"
+                aria-label="Delete topic"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-5 h-5" />
+                )}
+              </Button>
+            </>
+          )}
 
           <div className={`p-2 rounded-full bg-muted/50 transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-primary/10 text-primary' : ''}`}>
             <ChevronDown className="w-5 h-5" />

@@ -56,7 +56,7 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
 
   const handleSubmit = async () => {
     if (topics.length === 0) {
-      setError("Please add at least one topic");
+      setError("Please add at least one keyword/topic");
       return;
     }
 
@@ -68,16 +68,32 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
 
       if (!userId) return;
 
-      for (const topic of topics) {
+      // Process each "topic" (which is actually a keyword) one by one
+      for (const topicItem of topics) {
+        // 1. Generate AI Topic from Keyword
+        const genResponse = await fetch("/api/generate-topics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword: topicItem.title }), // currently stored in 'title'
+        });
+
+        if (!genResponse.ok) console.warn("AI Generation failed for:", topicItem.title);
+
+        const genData = genResponse.ok
+          ? await genResponse.json()
+          : { title: topicItem.title, description: topicItem.description };
+
+        // 2. Save the FINAL topic to DB
+        // We preserve the user's original style/description as requested, only updating the title.
         const response = await fetch("/api/topics", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId,
-            title: topic.title,
-            description: topic.description,
-            postLength: topic.postLength,
-            includeImage: topic.includeImage,
+            title: genData.title, // Use the AI generated title
+            description: topicItem.description, // PRESERVE the user's selected style!
+            postLength: topicItem.postLength,
+            includeImage: topicItem.includeImage,
           }),
         });
 
@@ -90,7 +106,7 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
       onTopicsCreated(createdTopics);
       toast({
         title: "Success",
-        description: `Successfully created ${createdTopics.length} topics.`,
+        description: `Successfully generated ${createdTopics.length} smart topics from your keywords.`,
       });
     } catch (err) {
       setError(err.message || "Failed to create topics");
@@ -124,12 +140,12 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
             <div className="space-y-3">
               <div className="pb-1">
                 <label className="text-sm font-semibold text-foreground/80 ml-1">
-                  What's the topic?
+                  What's the keyword or phrase?
                 </label>
               </div>
               <Input
                 className="h-14 px-5 text-lg bg-background border-border/60 focus:border-primary/50 focus:ring-primary/10 transition-all rounded-xl shadow-sm"
-                placeholder="e.g., The Future of AI in Marketing..."
+                placeholder="e.g., Marketing, AI in Finance, Remote Work..."
                 value={currentTopic}
                 onChange={(e) => setCurrentTopic(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addTopic()}
@@ -344,7 +360,7 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
                 ) : (
                   <>
                     <Wand2 className="w-5 h-5 mr-3" />
-                    Generate All Posts
+                    Generate Smart Topics
                   </>
                 )}
               </Button>

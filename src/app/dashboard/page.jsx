@@ -31,6 +31,7 @@ import { ProfileSettings } from "@/components/profile-settings";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { PremiumModal } from "@/components/premium-modal";
 import AdminPage from "../admin/page";
+import { TopicsSkeleton } from "@/components/skeletons";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";

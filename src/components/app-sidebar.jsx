@@ -89,7 +89,6 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
 
 
 
-
     const LINKEDIN_AUTH_URL = "/connect"
 
     return (

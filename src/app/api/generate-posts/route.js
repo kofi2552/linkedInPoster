@@ -69,10 +69,10 @@ export async function POST(request) {
       try {
         console.log("Generating image for topic:", topic.title);
         // Use Gemini to create an image prompt based on the topic
-        const imagePrompt = `Generate a prompt for an AI image generator to create a professional LinkedIn post image about: "${topic.title}". The image should be modern, clean, and suitable for a business audience. No text in the image. Return only the prompt string.`;
+        const imagePrompt = `Generate a prompt for an AI image generator to create a professional LinkedIn post image about: "${topic.title}". The image should be realistic, clean, and conceptually engaging. No text in the image. Return only the prompt string.`;
 
         const promptResponse = await generateLinkedInPost(imagePrompt, "Keep it under 200 characters, descriptive but concise.");
-        const finalPrompt = promptResponse.post || `${topic.title} professional linkedin background, clean, modern, 4k`;
+        const finalPrompt = promptResponse.post || `${topic.title} professional linkedin image, clean, hyper-realistic,  modern, 4k`;
 
         console.log("Image Prompt:", finalPrompt);
         imageBase64 = await generateImage(finalPrompt);
