@@ -55,6 +55,10 @@ export const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    hasSeenOnboarding: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     premiumStartedAt: {
       type: DataTypes.DATE,
       allowNull: true,

@@ -21,6 +21,8 @@ import {
   Users
 } from "lucide-react";
 import { DemoCard } from "@/components/demo-card";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export default function LandingPage() {
   const { data: session } = useSession();
@@ -40,25 +42,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Navbar */}
-      <nav className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 font-bold text-xl">
-            <Image src="/images/PP_logo.png" alt="PostPilot" width={32} height={32} />
-            <span>PostPilot</span>
-          </div>
-          <div>
-            {session ? (
-              <Link href="/dashboard">
-                <Button>Dashboard</Button>
-              </Link>
-            ) : (
-              <Link href="/login">
-                <Button variant="outline">Get Started</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </nav>
+      <SiteHeader />
+
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -114,13 +99,15 @@ export default function LandingPage() {
             <div className="pt-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-700 delay-300">
               <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                 <Link href={session ? "/dashboard" : "/login"}>
-                  <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-shadow w-full sm:w-auto">
+                  <Button size="lg" className="cursor-pointer h-14 px-8 text-lg rounded-full shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-shadow w-full sm:w-auto">
                     {session ? "Go to Dashboard" : "Start Writing for Free"}
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-2 w-full sm:w-auto">
-                  View Demo
-                </Button>
+                <Link href="/contributing">
+                  <Button variant="ghost" size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group">
+                    Join us <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                  </Button>
+                </Link>
               </div>
 
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -264,13 +251,15 @@ export default function LandingPage() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <Link href={session ? "/dashboard" : "/login"}>
-                    <Button size="lg" className="h-12 px-8 rounded-full text-base shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 w-full sm:w-auto">
+                    <Button size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 w-full sm:w-auto">
                       Start Creating Now
                     </Button>
                   </Link>
-                  <Button variant="ghost" size="lg" className="h-12 px-8 rounded-full text-base w-full sm:w-auto group">
-                    See Pricing <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                  </Button>
+                  <Link href="/pricing">
+                    <Button variant="ghost" size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group">
+                      See Pricing <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </Button>
+                  </Link>
                 </div>
 
                 <div className="pt-4 flex items-center justify-center lg:justify-start gap-8 text-sm text-muted-foreground">
@@ -290,19 +279,7 @@ export default function LandingPage() {
 
       </main>
 
-      <footer className="py-8 border-t bg-muted/20">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-foreground">PostPilot</span>
-            <span>© 2024</span>
-          </div>
-          <div className="flex gap-6">
-            <span>Privacy</span>
-            <span>Terms</span>
-            <span>Built for Professionals</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

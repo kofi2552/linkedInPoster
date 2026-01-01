@@ -28,7 +28,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { PersonaSettings } from "@/components/persona-settings";
 import { ProfileSettings } from "@/components/profile-settings";
-import { TopicsSkeleton } from "@/components/skeletons";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
 import { PremiumModal } from "@/components/premium-modal";
 import AdminPage from "../admin/page";
 
