@@ -114,3 +114,39 @@ export async function PATCH(request) {
         return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
     }
 }
+
+export async function DELETE(request) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get("userId");
+
+        if (!userId) {
+            return NextResponse.json({ error: "User ID required" }, { status: 400 });
+        }
+
+        // Strict Database Check for Admin Status
+        const requestingUser = await User.findOne({ where: { email: session.user.email } });
+        if (!requestingUser || !requestingUser.isAdmin) {
+            return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+        }
+
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        // Deleting the user will cascade to Topics, Schedules, and ScheduledPosts 
+        // because of the associations defined in models.js
+        await user.destroy();
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+    }
+}

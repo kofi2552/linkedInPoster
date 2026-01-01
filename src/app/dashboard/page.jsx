@@ -479,6 +479,19 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto flex flex-col gap-4 p-4 pt-6 md:p-8 md:pt-10" style={{ width: "80%" }}>
           {renderContent()}
         </div>
+        <OnboardingWizard
+          isOpen={user && !user.hasSeenOnboarding}
+          onComplete={async () => {
+            try {
+              await fetch("/api/user/onboarding", { method: "POST" });
+              // Update local state to close modal immediately
+              setUser(prev => ({ ...prev, hasSeenOnboarding: true }));
+              toast.success("Welcome aboard!");
+            } catch (e) {
+              console.error(e);
+            }
+          }}
+        />
         <PremiumModal
           isOpen={isPremiumModalOpen}
           onClose={() => setIsPremiumModalOpen(false)}

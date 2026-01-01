@@ -12,12 +12,22 @@ export const authOptions = {
   ],
 
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, profile }) {
       await sequelize.sync({ alter: true });
       const [existingUser, created] = await User.findOrCreate({
         where: { email: user.email },
-        defaults: { email: user.email },
+        defaults: {
+          email: user.email,
+          name: user.name || profile?.name
+        },
       });
+
+      // Update name if missing
+      if (!created && !existingUser.name && (user.name || profile?.name)) {
+        existingUser.name = user.name || profile?.name;
+        await existingUser.save();
+      }
+
       return true;
     },
 
@@ -34,6 +44,7 @@ export const authOptions = {
         }
 
         session.user.id = user.id;
+        session.user.name = user.name;
         session.user.linkedinConnected = !!user.linkedinAccessToken;
         session.user.isAdmin = user.isAdmin;
         session.user.isPremium = user.isPremium;

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const STEPS = [
     {
         id: "welcome",
-        title: "Welcome to LinkedIn AI",
+        title: "Welcome to PostPilot AI",
         description: "Your personal automated content strategist. Let's get you set up for success.",
         icon: Rocket,
         color: "text-blue-600",
@@ -61,7 +61,7 @@ export function OnboardingWizard({ isOpen, onComplete }) {
                 <div className="relative flex flex-col items-center justify-center p-8 text-center space-y-6 min-h-[400px]">
 
                     {/* Progress Indicators */}
-                    <div className="absolute top-6 flex space-x-2">
+                    <div className="absolute top-6 flex space-x-2 py-2">
                         {STEPS.map((_, index) => (
                             <div
                                 key={index}
@@ -75,7 +75,7 @@ export function OnboardingWizard({ isOpen, onComplete }) {
 
                     {/* Animated Icon */}
                     <div className={cn(
-                        "p-6 rounded-full mb-4 animate-in zoom-in-50 duration-500 ease-out",
+                        "p-6 rounded-full mb-4 mt-8 animate-in zoom-in-50 duration-500 ease-out",
                         step.bgColor
                     )}>
                         <Icon className={cn("w-12 h-12", step.color)} />
@@ -96,7 +96,7 @@ export function OnboardingWizard({ isOpen, onComplete }) {
                         <Button
                             onClick={handleNext}
                             size="lg"
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 text-base font-semibold shadow-blue-200 shadow-lg transition-all hover:scale-[1.02]"
+                            className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 text-base font-semibold shadow-blue-200 shadow-lg transition-all hover:scale-[1.02]"
                         >
                             {currentStep === STEPS.length - 1 ? "Get Started" : (
                                 <span className="flex items-center gap-2">

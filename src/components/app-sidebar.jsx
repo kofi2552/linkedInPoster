@@ -43,10 +43,14 @@ import { Button } from "@/components/ui/button";
 import { PremiumModal } from "@/components/premium-modal";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
+import { MessageSquareText } from "lucide-react";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 
 export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected }) {
     const { isMobile } = useSidebar();
     const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
 
     const items = [
         {
@@ -71,12 +75,19 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
         },
         // Profile moved to navbar
         {
+            title: "Feedback",
+            view: "feedback",
+            icon: MessageSquareText,
+        },
+        {
             title: "Admin",
             view: "admin",
             icon: Shield,
             isAdminOnly: true,
         },
     ];
+
+
 
 
     const LINKEDIN_AUTH_URL = "/connect"
@@ -117,11 +128,19 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                             {items.map((item) => {
                                 if (item.isAdminOnly && !user?.isAdmin) return null;
 
+                                const isFeedback = item.title === "Feedback";
+
                                 return (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton
-                                            isActive={activeView === item.view}
-                                            onClick={() => onViewChange(item.view)}
+                                            isActive={!isFeedback && activeView === item.view}
+                                            onClick={() => {
+                                                if (isFeedback) {
+                                                    setIsFeedbackOpen(true);
+                                                } else {
+                                                    onViewChange(item.view);
+                                                }
+                                            }}
                                             tooltip={item.title}
                                             size="lg"
                                             className="transition-all duration-200 ease-in-out
@@ -142,6 +161,7 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                                     </SidebarMenuItem>
                                 );
                             }).filter(Boolean)}
+
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -280,6 +300,11 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                 userPhone={user?.phoneNumber}
                 userId={user?.id}
             />
+            <FeedbackDialog
+                isOpen={isFeedbackOpen}
+                onClose={() => setIsFeedbackOpen(false)}
+            />
         </Sidebar>
+
     );
 }
