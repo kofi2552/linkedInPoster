@@ -195,10 +195,14 @@ export default function Dashboard() {
   const handleTopicsCreated = (newTopics) => {
     setTopics([...topics, ...newTopics]);
     setRefreshTrigger((prev) => prev + 1);
+    setActiveView("topics"); // 🚀 Auto-navigate to Topics
+    toast.success("Topics generated! Setup your schedule now.");
   };
 
   const handleScheduleCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
+    setActiveView("queue"); // 🚀 Auto-navigate to Queue
+    toast.success("Schedule live! View your queue.");
   };
 
   const handleEditPost = (updatedPost) => {
@@ -261,97 +265,115 @@ export default function Dashboard() {
 
   // Logic to render content based on activeView
   const renderContent = () => {
+    // Common transition wrapper
+    const FadeIn = ({ children }) => (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-in-out">
+        {children}
+      </div>
+    );
+
     switch (activeView) {
       case "generator":
         return (
-          <div className="max-w-5xl mx-auto space-y-6">
-            <BatchContentGenerator
-              userId={session?.user.id}
-              user={user}
-              onTopicsCreated={handleTopicsCreated}
-            />
-          </div>
+          <FadeIn>
+            <div className="w-full mx-auto space-y-6">
+              <BatchContentGenerator
+                userId={session?.user.id}
+                user={user}
+                onTopicsCreated={handleTopicsCreated}
+              />
+            </div>
+          </FadeIn>
         );
       case "persona":
-        return <PersonaSettings userId={session?.user.id} isPremium={user?.isPremium} />;
+        return <FadeIn><PersonaSettings userId={session?.user.id} isPremium={user?.isPremium} /></FadeIn>;
       case "profile":
         return (
-          <ProfileSettings
-            userId={session?.user.id}
-            userEmail={session?.user?.email}
-            userName={session?.user?.name}
-            user={user}
-            onUpgrade={() => setIsPremiumModalOpen(true)}
-          />
+          <FadeIn>
+            <ProfileSettings
+              userId={session?.user.id}
+              userEmail={session?.user?.email}
+              userName={session?.user?.name}
+              user={user}
+              onUpgrade={() => setIsPremiumModalOpen(true)}
+            />
+          </FadeIn>
         );
       case "topics":
         return (
-          <div className="max-w-5xl mx-auto space-y-6">
-            <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight">Topic Management</h2>
-              <p className="text-muted-foreground">
-                Manage your content pillars and saved topics.
-              </p>
-            </div>
-            {isTopicsLoading ? (
-              <TopicsSkeleton />
-            ) : topics.length === 0 ? (
-              <Card className="p-12 border-dashed shadow-sm">
-                <div className="text-center text-muted-foreground flex flex-col items-center justify-center space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-full">
-                    <LayoutDashboard className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold">No topics found</h3>
-                  <p className="max-w-sm">
-                    You haven't generated any topics yet. Head over to the Generator to get started.
-                  </p>
-                  <Button onClick={() => setActiveView("generator")}>Go to Generator</Button>
-                </div>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {topics.map((topic) => (
-                  <TopicCard
-                    key={topic.id}
-                    topic={topic}
-                    onScheduleCreated={handleScheduleCreated}
-                    onDeleted={(id) =>
-                      setTopics((prev) => prev.filter((t) => t.id !== id))
-                    }
-                  />
-                ))}
+          <FadeIn>
+            <div className="w-full mx-auto space-y-6">
+              <div className="flex flex-col space-y-2">
+                <h2 className="text-2xl font-bold tracking-tight">Topic Management</h2>
+                <p className="text-muted-foreground">
+                  Manage your content pillars and saved topics.
+                </p>
               </div>
-            )}
-          </div>
+              {isTopicsLoading ? (
+                <TopicsSkeleton />
+              ) : topics.length === 0 ? (
+                <Card className="p-12 border-dashed shadow-sm">
+                  <div className="text-center text-muted-foreground flex flex-col items-center justify-center space-y-4">
+                    <div className="bg-primary/10 p-4 rounded-full">
+                      <LayoutDashboard className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">No topics found</h3>
+                    <p className="max-w-sm">
+                      You haven't generated any topics yet. Head over to the Generator to get started.
+                    </p>
+                    <Button onClick={() => setActiveView("generator")}>Go to Generator</Button>
+                  </div>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {topics.map((topic) => (
+                    <TopicCard
+                      key={topic.id}
+                      topic={topic}
+                      isLinkedInConnected={isLinkedInConnected}
+                      onScheduleCreated={handleScheduleCreated}
+                      onDeleted={(id) =>
+                        setTopics((prev) => prev.filter((t) => t.id !== id))
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </FadeIn>
         );
       case "queue":
         return (
-          <div className="max-w-5xl mx-auto space-y-6">
-            <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight">Post Queue</h2>
-              <p className="text-muted-foreground">
-                Review, edit, and schedule your upcoming posts.
-              </p>
+          <FadeIn>
+            <div className="w-full mx-auto space-y-6">
+              <div className="flex flex-col space-y-2">
+                <h2 className="text-2xl font-bold tracking-tight">Post Queue</h2>
+                <p className="text-muted-foreground">
+                  Review, edit, and schedule your upcoming posts.
+                </p>
+              </div>
+              <PostQueue
+                userId={session?.user.id}
+                refreshTrigger={refreshTrigger}
+                onEditPost={handleEditPost}
+                onDeletePost={handleDeletePost}
+              />
             </div>
-            <PostQueue
-              userId={session?.user.id}
-              refreshTrigger={refreshTrigger}
-              onEditPost={handleEditPost}
-              onDeletePost={handleDeletePost}
-            />
-          </div>
+          </FadeIn>
         );
       default:
         return (
-          <div className="max-w-5xl mx-auto space-y-6">
-            <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-bold tracking-tight">Admin Dashboard</h2>
-              <p className="text-muted-foreground">
-                Manage users and premium subscriptions.
-              </p>
+          <FadeIn>
+            <div className="w-full mx-auto space-y-6">
+              <div className="flex flex-col space-y-2">
+                <h2 className="text-2xl font-bold tracking-tight">Admin Dashboard</h2>
+                <p className="text-muted-foreground">
+                  Manage users and premium subscriptions.
+                </p>
+              </div>
+              <AdminPage />
             </div>
-            <AdminPage />
-          </div>
+          </FadeIn>
         );
     }
   };
@@ -454,7 +476,7 @@ export default function Dashboard() {
 
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-6 md:p-8 md:pt-10">
+        <div className="max-w-7xl mx-auto flex flex-col gap-4 p-4 pt-6 md:p-8 md:pt-10" style={{ width: "80%" }}>
           {renderContent()}
         </div>
         <PremiumModal

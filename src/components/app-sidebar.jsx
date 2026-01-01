@@ -112,6 +112,8 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
+
+
                             {items.map((item) => {
                                 if (item.isAdminOnly && !user?.isAdmin) return null;
 
@@ -145,6 +147,28 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
+                {/* Critical Action Alert */}
+                {!isLinkedInConnected && (
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            onClick={() => window.location.href = "/connect"}
+                            size="lg"
+                            className="bg-destructive/10 text-destructive cursor-pointer hover:bg-destructive/20 hover:text-destructive border border-destructive/20 transition-all animate-pulse"
+                            tooltip="Action Required"
+                        >
+                            <div className="w-full mx-auto flex items-center justify-center gap-2">
+
+                                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-destructive text-white text-[10px] font-bold ml-4 text-center">
+                                    !
+                                </div>
+                                <span className="font-semibold group-data-[collapsible=icon]:hidden">
+                                    Connect LinkedIn
+                                </span>
+                            </div>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                )}
+
                 {user?.isPremium && (
                     <div className="">
                         <div
@@ -167,11 +191,11 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
 
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <DropdownMenu>
+                        <DropdownMenu className="border border-t">
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                     size="lg"
-                                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                    className="data-[state=open]:bg-sidebar-accent cursor-pointer data-[state=open]:text-sidebar-accent-foreground"
                                 >
                                     <div className="relative">
                                         <Avatar className="h-8 w-8 rounded-lg">
@@ -221,7 +245,7 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                                 {!isLinkedInConnected ? (
                                     <>
                                         <DropdownMenuItem onClick={() => window.location.href = LINKEDIN_AUTH_URL} className="text-blue-600 font-medium">
-                                            <div className="flex items-center w-full">
+                                            <div className="flex items-center w-full cursor-pointer">
                                                 <div className="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse" />
                                                 Connect LinkedIn
                                             </div>
@@ -240,7 +264,7 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                                     </>
                                 )}
 
-                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
+                                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })} className="cursor-pointer">
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Log out
                                 </DropdownMenuItem>

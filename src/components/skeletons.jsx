@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 
 export function GeneratorSkeleton() {
     return (
-        <div className="space-y-6">
+        <div className="w-full space-y-6 animate-in fade-in duration-500">
             <div className="space-y-2">
                 <Skeleton className="h-8 w-48" /> {/* Title */}
                 <Skeleton className="h-4 w-96" /> {/* Subtitle */}
@@ -34,7 +34,7 @@ export function GeneratorSkeleton() {
 
 export function TopicsSkeleton() {
     return (
-        <div className="space-y-6">
+        <div className="w-full space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col space-y-2">
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-4 w-64" />
@@ -65,7 +65,7 @@ export function TopicsSkeleton() {
 
 export function QueueSkeleton() {
     return (
-        <div className="space-y-6">
+        <div className="w-full space-y-6 animate-in fade-in duration-500">
             <div className="flex flex-col space-y-2">
                 <Skeleton className="h-8 w-32" />
                 <Skeleton className="h-4 w-64" />
@@ -92,10 +92,10 @@ export function QueueSkeleton() {
 
 export function PersonaSkeleton() {
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="w-full space-y-8 animate-in fade-in duration-500">
             <div className="space-y-2">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-96" />
+                <Skeleton className="h-8 w-1/4 min-w-[200px]" />
+                <Skeleton className="h-4 w-1/2 min-w-[300px]" />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">

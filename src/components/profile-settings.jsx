@@ -83,10 +83,13 @@ export function ProfileSettings({ userId, userEmail, userName, user, onUpgrade }
         }
     };
 
-    if (loading) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin" /></div>;
+    if (loading) return <div className="w-full h-[50vh] mx-auto p-8 flex items-center justify-center flex-col">
+        <Loader2 className="w-10 h-10 animate-spin" />
+        loading ...
+    </div>;
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6">
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold tracking-tight">Profile & Account</h2>
                 <p className="text-muted-foreground">Manage your contact details and account status.</p>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 
-export function TopicCard({ topic, onScheduleCreated, onDeleted }) {
+export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConnected }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDeleting, setDeleting] = useState(false);
   const { toast } = useToast();
@@ -143,13 +143,30 @@ export function TopicCard({ topic, onScheduleCreated, onDeleted }) {
               <CalendarClock className="w-4 h-4" />
               {activeSchedule ? "Manage Schedule" : "Setup Automated Schedule"}
             </div>
-            <ScheduleForm
-              topicId={topic.id}
-              onScheduleCreated={(s) => {
-                onScheduleCreated(s);
-                // Optional: Feedback or keep open
-              }}
-            />
+            {isLinkedInConnected ? (
+              <ScheduleForm
+                topicId={topic.id}
+                onScheduleCreated={(s) => {
+                  onScheduleCreated(s);
+                }}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-destructive/20 bg-destructive/5 rounded-xl text-center space-y-3">
+                <div className="p-3 bg-white rounded-full shadow-sm">
+                  <Loader2 className="w-6 h-6 text-destructive animate-pulse" />
+                </div>
+                <h4 className="font-semibold text-destructive">LinkedIn Connection Required</h4>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  You need to connect your LinkedIn account before you can schedule posts for this topic.
+                </p>
+                <Button
+                  onClick={() => window.location.href = "/connect"}
+                  className="bg-destructive hover:bg-destructive/90 text-white shadow-sm mt-2"
+                >
+                  Connect Now
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

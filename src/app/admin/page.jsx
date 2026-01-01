@@ -87,7 +87,10 @@ export default function AdminPage() {
     };
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin w-8 h-8" /></div>;
+        return <div className="h-[50vh] flex items-center justify-center flex-col">
+            <Loader2 className="animate-spin w-10 h-10" />
+            waiting ..
+        </div>;
     }
 
     // Safety check: If not admin (and somehow got here), show message
@@ -104,7 +107,7 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="container mx-auto pt-4">
+        <div className="w-full container mx-auto pt-4">
 
             <Card>
                 <CardHeader>
@@ -118,6 +121,7 @@ export default function AdminPage() {
                                 <TableHead>Status</TableHead>
                                 <TableHead>Premium Since</TableHead>
                                 <TableHead>Expires At</TableHead>
+                                <TableHead>Posts Activity</TableHead>
                                 <TableHead>Phone</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
@@ -149,6 +153,18 @@ export default function AdminPage() {
                                         {user.isPremium && user.premiumExpiresAt
                                             ? new Date(user.premiumExpiresAt).toLocaleString()
                                             : "-"}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col gap-1 text-xs">
+                                            <div className="flex items-center gap-1.5 font-medium text-green-700">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                                {user.publishedCount || 0} Published
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-muted-foreground">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                                {user.scheduledCount || 0} Scheduled
+                                            </div>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         {user.phoneNumber || <span className="text-muted-foreground italic">None</span>}

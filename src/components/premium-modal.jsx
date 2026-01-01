@@ -15,7 +15,7 @@ export function PremiumModal({ isOpen, onClose, userPhone, userId }) {
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={onClose} className="w-full mx-3">
             <DialogContent className="max-w-md sm:max-w-lg">
                 <DialogHeader className="text-center space-y-4 pt-6">
                     <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-2">

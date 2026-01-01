@@ -23,7 +23,34 @@ export async function GET(request) {
             order: [["createdAt", "DESC"]],
             attributes: { exclude: ["linkedinAccessToken"] }
         });
-        return NextResponse.json(users);
+
+        // Fetch post counts for all users
+        const postCounts = await sequelize.query(`
+            SELECT "userId", "status", COUNT(*) as "count"
+            FROM "scheduled_posts"
+            GROUP BY "userId", "status"
+        `, { type: sequelize.QueryTypes.SELECT });
+
+        const usersWithCounts = users.map(user => {
+            const userCounts = postCounts.filter(p => p.userId === user.id);
+            const publishedRequest = userCounts.find(p => p.status === 'published');
+            const pendingRequest = userCounts.find(p => p.status === 'pending');
+            const failedRequest = userCounts.find(p => p.status === 'failed');
+
+            // Handle both string and number return types from COUNT
+            const publishedCount = publishedRequest ? parseInt(publishedRequest.count, 10) : 0;
+            const scheduledCount = pendingRequest ? parseInt(pendingRequest.count, 10) : 0;
+            const failedCount = failedRequest ? parseInt(failedRequest.count, 10) : 0;
+
+            return {
+                ...user.toJSON(),
+                publishedCount,
+                scheduledCount,
+                failedCount
+            };
+        });
+
+        return NextResponse.json(usersWithCounts);
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
