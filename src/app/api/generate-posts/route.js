@@ -1,6 +1,6 @@
 import { generateLinkedInPost } from "@/lib/gemini.js"
 import { generateImage } from "@/lib/image.js"
-import { Topic, Schedule, ScheduledPost } from "@/lib/models.js"
+import { Topic, Schedule, ScheduledPost, User } from "@/lib/models.js"
 import { addDays, addMonths, setHours, setMinutes, startOfDay } from "date-fns"
 
 function getNextScheduledDate(frequency, time, dayOfWeek = null) {
@@ -42,15 +42,27 @@ export async function POST(request) {
     }
 
     // Fetch topic and schedule
-    const topic = await Topic.findByPk(topicId)
-    const schedule = await Schedule.findByPk(scheduleId)
+    // Fetch topic and schedule with User to get Persona
+    const topic = await Topic.findByPk(topicId, {
+      include: [{ model: Schedule }, { model: User, attributes: ['profession', 'industry', 'tone', 'bio'] }]
+    });
+
+    // Fallback if topic/schedule not found or if scheduleId doesn't match
+    const schedule = await Schedule.findByPk(scheduleId);
 
     if (!topic || !schedule) {
       return Response.json({ error: "Topic or Schedule not found" }, { status: 404 })
     }
 
+    const userPersona = topic.User ? {
+      profession: topic.User.profession,
+      industry: topic.User.industry,
+      tone: topic.User.tone,
+      bio: topic.User.bio
+    } : {};
+
     // Generate LinkedIn post using Gemini
-    const content = await generateLinkedInPost(topic.title, topic.description)
+    const content = await generateLinkedInPost(topic.title, topic.description, userPersona)
 
     let imageBase64 = null;
     if (topic.includeImage) {

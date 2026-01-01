@@ -109,7 +109,7 @@ import fs from "fs";
 //   }
 // }
 
-export async function generateLinkedInPost(topic, description = "") {
+export async function generateLinkedInPost(topic, description = "", userPersona = {}) {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const ImageApiKey = process.env.GOOGLE_IMAGE_GENERATION_API_KEY;
 
@@ -131,13 +131,20 @@ export async function generateLinkedInPost(topic, description = "") {
               parts: [
                 {
                   text: `Using the following template, generate an engaging LinkedIn-style post using the title "${topic}". 
-                  Maintain the structure and this tone: ${description}. 
+                  Maintain the structure and this tone: ${description || userPersona.tone || "professional"}. 
               
+                  **Author Context (The Persona):**
+                  - Profession: ${userPersona.profession || "Industry Professional"}
+                  - Industry: ${userPersona.industry || "General Business"}
+                  - Bio/Background: ${userPersona.bio || "Experienced professional sharing insights."}
+                  - Voice/Tone: ${userPersona.tone || "Professional, engaging, and authentic"}
+
                   Follow these Requirements strictly:
-                - Contrust a unique post title that captures attention not more than 150 characters.
+                - Construct a unique post title that captures attention not more than 150 characters.
                 - The post should have a humanized body (with paragraphs if needed)  
                 - Fit within these guidelines
-                - The post must be relevant to LinkedIn audiences who are expected to be educational tech professionals or educational leaders.
+                - The post must be relevant to LinkedIn audiences in the **${userPersona.industry || "General Business"}** industry.
+                - **Write FROM the perspective of a ${userPersona.profession || "professional"}, incorporating their expertise.**
                 - Remove any greetings or sign-offs
                 - Remove any extra headings or subtitles
                 - Focus solely on the post content
@@ -163,8 +170,7 @@ export async function generateLinkedInPost(topic, description = "") {
 
     if (!textResponse.ok) {
       throw new Error(
-        `Gemini API Error: ${
-          textData.error?.message || textResponse.statusText
+        `Gemini API Error: ${textData.error?.message || textResponse.statusText
         }`
       );
     }
@@ -225,7 +231,8 @@ export async function generateBatchPosts(topics) {
     try {
       const content = await generateLinkedInPost(
         topic.title,
-        topic.description
+        topic.description,
+        topic.userPersona || {}
       );
       posts.push({
         topicId: topic.id,
