@@ -18,7 +18,7 @@ import {
   Send,
   Zap,
   ThumbsUp,
-  Users
+  Users,
 } from "lucide-react";
 import { DemoCard } from "@/components/demo-card";
 import { SiteHeader } from "@/components/site-header";
@@ -31,10 +31,10 @@ export default function LandingPage() {
 
   const handleLike = () => {
     if (isLiked) {
-      setLikeCount(prev => prev - 1);
+      setLikeCount((prev) => prev - 1);
       setIsLiked(false);
     } else {
-      setLikeCount(prev => prev + 1);
+      setLikeCount((prev) => prev + 1);
       setIsLiked(true);
     }
   };
@@ -43,7 +43,6 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Navbar */}
       <SiteHeader />
-
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -62,7 +61,9 @@ export default function LandingPage() {
               </div>
               <div>
                 <div className="text-xs font-semibold">Post Published</div>
-                <div className="text-[10px] text-muted-foreground">Just now</div>
+                <div className="text-[10px] text-muted-foreground">
+                  Just now
+                </div>
               </div>
               <CheckCircle2 className="w-4 h-4 text-green-500 ml-2" />
             </Card>
@@ -82,46 +83,81 @@ export default function LandingPage() {
           </div>
 
           <div className="container px-4 mx-auto relative z-10 text-center space-y-8 max-w-4xl">
-            <Badge variant="outline" className="px-4 py-1.5 text-sm rounded-full border-blue-200 bg-blue-50 text-blue-700 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <Badge
+              variant="outline"
+              className="px-4 py-1.5 text-sm rounded-full border-blue-200 bg-blue-50 text-blue-700 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700"
+            >
               <Sparkles className="w-3.5 h-3.5 mr-2" />
               <span className="font-semibold">New:</span> Persona-Aware AI
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
               Your Personal <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">LinkedIn Ghostwriter</span>.
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                Content Creation Tool
+              </span>
+              .
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-              Stop staring at a blank screen. Automate your thought leadership with AI that actually sounds like you, not a robot.
+              Stop staring at a blank screen. Automate your thought leadership
+              with AI that actually sounds like you, not a robot.
             </p>
 
             <div className="pt-8 flex flex-col items-center gap-6 animate-in fade-in zoom-in duration-700 delay-300">
               <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                 <Link href={session ? "/dashboard" : "/login"}>
-                  <Button size="lg" className="cursor-pointer h-14 px-8 text-lg rounded-full shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-shadow w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="cursor-pointer h-14 px-8 text-lg rounded-full shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-shadow w-full sm:w-auto"
+                  >
                     {session ? "Go to Dashboard" : "Start Writing for Free"}
                   </Button>
                 </Link>
                 <Link href="/contributing">
-                  <Button variant="ghost" size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group">
-                    Join us <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group"
+                  >
+                    Join us{" "}
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform">
+                      →
+                    </span>
                   </Button>
                 </Link>
               </div>
 
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-slate-200 overflow-hidden relative">
-                      <Image src={`/images/PP_logo.png`} width={32} height={32} alt="User" className="opacity-0" /* Using logo as placeholder if no user images */ />
-                      <div className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br ${i % 2 === 0 ? 'from-blue-400 to-blue-600' : 'from-purple-400 to-purple-600'}`}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-background bg-slate-200 overflow-hidden relative"
+                    >
+                      <Image
+                        src={`/images/PP_logo.png`}
+                        width={32}
+                        height={32}
+                        alt="User"
+                        className="opacity-0" /* Using logo as placeholder if no user images */
+                      />
+                      <div
+                        className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br ${
+                          i % 2 === 0
+                            ? "from-blue-400 to-blue-600"
+                            : "from-purple-400 to-purple-600"
+                        }`}
+                      >
                         {String.fromCharCode(64 + i)}
                       </div>
                     </div>
                   ))}
                 </div>
-                <p><span className="font-bold text-foreground">2,000+</span> creators trust PostPilot</p>
+                <p>
+                  <span className="font-bold text-foreground">2,000+</span>{" "}
+                  creators trust PostPilot
+                </p>
               </div>
             </div>
           </div>
@@ -131,8 +167,13 @@ export default function LandingPage() {
         <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight">Everything you need to go viral</h2>
-              <p className="text-muted-foreground text-lg">Powerful tools wrapped in a beautiful, distraction-free interface.</p>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Everything you need to go viral
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                Powerful tools wrapped in a beautiful, distraction-free
+                interface.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 max-w-5xl mx-auto h-auto md:h-[480px]">
@@ -147,12 +188,17 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-bold">Persona-Driven AI</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Most AI sounds generic. PostPilot is different. You define your tone, profession, and industry, and we custom-tune every single post to match your unique voice. It's like having a ghostwriter who actually knows you.
+                    Most AI sounds generic. PostPilot is different. You define
+                    your tone, profession, and industry, and we custom-tune
+                    every single post to match your unique voice. It's like
+                    having a ghostwriter who actually knows you.
                   </p>
                 </div>
                 <div className="mt-2 relative h-40 bg-background/50 backdrop-blur rounded-lg border border-border/50 p-3 shadow-sm group-hover:translate-y-[-3px] transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[10px] font-bold">You</div>
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[10px] font-bold">
+                      You
+                    </div>
                     <div className="h-1.5 w-20 bg-muted rounded-full" />
                   </div>
                   <div className="space-y-1.5">
@@ -174,12 +220,17 @@ export default function LandingPage() {
                     <Calendar className="w-4 h-4" />
                   </div>
                   <h3 className="text-base font-bold mb-1">Smart Schedule</h3>
-                  <p className="text-xs text-muted-foreground mb-4">Queue up weeks of content. We'll handle the posting.</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Queue up weeks of content. We'll handle the posting.
+                  </p>
 
                   {/* Calendar Visual */}
                   <div className="flex-1 bg-muted/20 rounded-lg border border-border/50 p-2 space-y-1.5 group-hover:bg-muted/30 transition-colors">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="flex items-center gap-2 p-1.5 bg-background rounded border border-border/50 shadow-sm">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 p-1.5 bg-background rounded border border-border/50 shadow-sm"
+                      >
                         <div className="w-0.5 h-5 rounded-full bg-green-500" />
                         <div className="space-y-1 flex-1">
                           <div className="h-1 w-10 bg-muted rounded-full" />
@@ -197,7 +248,9 @@ export default function LandingPage() {
                   <Wand2 className="w-4 h-4" />
                 </div>
                 <h3 className="text-base font-bold">Topic Batching</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Generate 50+ ideas in 30 seconds.</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Generate 50+ ideas in 30 seconds.
+                </p>
               </Card>
 
               {/* Feature 4: Analytics (Placeholder/Visual) - 1x1 */}
@@ -208,7 +261,9 @@ export default function LandingPage() {
                     <Zap className="w-4 h-4" />
                   </div>
                   <h3 className="text-base font-bold">Viral Hooks</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">AI trained on top performing posts.</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    AI trained on top performing posts.
+                  </p>
                 </div>
               </Card>
             </div>
@@ -235,29 +290,45 @@ export default function LandingPage() {
               {/* Right Column: CTA & Content */}
               <div className="order-1 lg:order-2 space-y-8 text-center lg:text-left">
                 <div className="space-y-4">
-                  <Badge variant="outline" className="px-4 py-1 text-sm rounded-full border-purple-200 bg-purple-50 text-purple-700">
+                  <Badge
+                    variant="outline"
+                    className="px-4 py-1 text-sm rounded-full border-purple-200 bg-purple-50 text-purple-700"
+                  >
                     <Zap className="w-3.5 h-3.5 mr-2 fill-purple-700" />
                     <span className="font-semibold">Interactive Preview</span>
                   </Badge>
                   <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
                     Don't just write. <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Captivate.</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                      Captivate.
+                    </span>
                   </h2>
                   <p className="text-xl text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0">
-                    Experience the difference of AI that understands <em>engagement</em>, not just algorithms.
-                    Interact with the preview to see how your content could look.
+                    Experience the difference of AI that understands{" "}
+                    <em>engagement</em>, not just algorithms. Interact with the
+                    preview to see how your content could look.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <Link href={session ? "/dashboard" : "/login"}>
-                    <Button size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      className="cursor-pointer h-12 px-8 rounded-full text-base shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 w-full sm:w-auto"
+                    >
                       Start Creating Now
                     </Button>
                   </Link>
                   <Link href="/pricing">
-                    <Button variant="ghost" size="lg" className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group">
-                      See Pricing <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="cursor-pointer h-12 px-8 rounded-full text-base w-full sm:w-auto group"
+                    >
+                      See Pricing{" "}
+                      <span className="ml-2 group-hover:translate-x-1 transition-transform">
+                        →
+                      </span>
                     </Button>
                   </Link>
                 </div>
@@ -276,7 +347,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
       </main>
 
       <SiteFooter />

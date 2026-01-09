@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PremiumModal } from "./premium-modal";
 import { ChevronDown, Image as ImageIcon, Lock } from "lucide-react";
 import { generatorSchema } from "@/lib/schemas";
+import { GeneratorSkeleton } from "./skeletons";
 
 export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
   const [topics, setTopics] = useState([]);
@@ -119,6 +120,10 @@ export function BatchContentGenerator({ userId, onTopicsCreated, user }) {
       setIsLoading(false);
     }
   };
+
+  if (!user) {
+    return <GeneratorSkeleton />
+  }
 
   return (
     <div className="w-full mx-auto py-8 space-y-8 animate-in fade-in duration-500">

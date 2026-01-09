@@ -4,29 +4,32 @@ import { Card } from "@/components/ui/card";
 
 export function GeneratorSkeleton() {
     return (
-        <div className="w-full space-y-6 animate-in fade-in duration-500">
-            <div className="space-y-2">
-                <Skeleton className="h-8 w-48" /> {/* Title */}
-                <Skeleton className="h-4 w-96" /> {/* Subtitle */}
-            </div>
+        <div className="w-full h-[80vh] flex justify-center items-center mx-auto space-y-6 animate-in fade-in duration-500">
+            <div className="w-full flex flex-col justify-center items-center">
 
-            <div className="grid gap-6">
-                <Card className="p-6 space-y-6">
-                    <div className="space-y-4">
-                        {/* Input Area */}
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-12 w-full rounded-md" />
+                <div className="w-[50vw] mx-auto flex flex-col justify-center items-center space-y-2 mb-6">
+                    <Skeleton className="h-8 w-48" /> {/* Title */}
+                    <Skeleton className="h-12 w-96" /> {/* Subtitle */}
+                </div>
+
+                <div className="w-full mx-auto grid gap-6">
+                    <Card className="p-6 space-y-6">
+                        <div className="space-y-4">
+                            {/* Input Area */}
+                            <div className="space-y-2">
+                                <Skeleton className="h-12 w-24" />
+                                <Skeleton className="h-24 w-full rounded-md" />
+                            </div>
+                            {/* Options */}
+                            <div className="flex gap-4">
+                                <Skeleton className="h-10 w-32" />
+                                <Skeleton className="h-10 w-32" />
+                            </div>
+                            {/* Button */}
+                            <Skeleton className="h-24 w-full rounded-md" />
                         </div>
-                        {/* Options */}
-                        <div className="flex gap-4">
-                            <Skeleton className="h-10 w-32" />
-                            <Skeleton className="h-10 w-32" />
-                        </div>
-                        {/* Button */}
-                        <Skeleton className="h-12 w-full rounded-md" />
-                    </div>
-                </Card>
+                    </Card>
+                </div>
             </div>
         </div>
     );
