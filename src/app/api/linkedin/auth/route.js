@@ -1,8 +1,4 @@
-const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
-const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
-const LINKEDIN_REDIRECT_URI =
-  process.env.LINKEDIN_REDIRECT_URI ||
-  `${process.env.NEXT_PUBLIC_APP_URL}/api/linkedin/callback`;
+import { getPlatform } from "@/lib/platforms/index.js";
 
 export async function GET(request) {
   try {
@@ -15,20 +11,12 @@ export async function GET(request) {
       return Response.json({ error: "userId is required" }, { status: 400 });
     }
 
-    // Generate LinkedIn authorization URL
-    const scope = "w_member_social openid email profile";
-    const state = Buffer.from(JSON.stringify({ userId })).toString("base64");
+    const platform = getPlatform("linkedin");
+    const authUrl = await platform.getAuthUrl(userId);
 
-    const authUrl = new URL("https://www.linkedin.com/oauth/v2/authorization");
-    authUrl.searchParams.append("response_type", "code");
-    authUrl.searchParams.append("client_id", LINKEDIN_CLIENT_ID);
-    authUrl.searchParams.append("redirect_uri", LINKEDIN_REDIRECT_URI);
-    authUrl.searchParams.append("scope", scope);
-    authUrl.searchParams.append("state", state);
+    console.log("Generated LinkedIn auth URL:", authUrl);
 
-    console.log("Generated LinkedIn auth URL:", authUrl.toString());
-
-    return Response.json({ authUrl: authUrl.toString() });
+    return Response.json({ authUrl });
   } catch (error) {
     console.error("LinkedIn auth error:", error);
     return Response.json({ error: error.message }, { status: 500 });

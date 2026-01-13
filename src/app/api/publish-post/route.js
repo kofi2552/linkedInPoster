@@ -1,7 +1,8 @@
-// import { User, ScheduledPost, Schedule, Topic } from "@/lib/models.js";
-// import { publishToLinkedIn } from "@/lib/linkedin.js";
-// import { generateLinkedInPost } from "@/lib/gemini.js";
-// import sequelize from "@/lib/db.js";
+import { User, ScheduledPost, Schedule, Topic, SocialAccount } from "@/lib/models.js";
+// import { publishToLinkedIn } from "@/lib/linkedin.js"; // Deprecated
+import { generateSocialPost } from "@/lib/gemini.js";
+import { getPlatform } from "@/lib/platforms/index.js";
+import sequelize from "@/lib/db.js";
 
 // const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 
@@ -72,41 +73,68 @@
 
 //       if (!shouldPost) continue;
 
-//       console.log(`🧠 Generating post for topic "${topic.title}"...`);
+//       console.log(`🧠 Generating post for topic "${topic.title}" on ${schedule.platform}...`);
 
-//       // Create a nested transaction per schedule
 //       const innerTx = await sequelize.transaction();
 
 //       try {
-//         // 1️⃣ Generate the LinkedIn post content
-//         const content = await generateLinkedInPost(
+//         // 1️⃣ Generate content
+//         const contentResponse = await generateSocialPost(
 //           topic.title,
-//           topic.description ||
-//             "Write a professional, engaging LinkedIn post related to this topic."
+//           topic.description || "Write a professional post related to this topic.",
+//           {}, // userPersona could be passed if fetched
+//           schedule.platform || "linkedin"
 //         );
+//         const content = contentResponse.post || contentResponse;
 
-//         //console.log("Publishing to LinkedIn for user ID:", PostUserId);
+//         // 2️⃣ Get Platform Instance
+//         const platformName = schedule.platform || "linkedin";
+//         const platform = getPlatform(platformName);
+        
+//         // 3️⃣ Get Credentials
+//         let accessToken, platformUserId;
+//         const socialAccount = await SocialAccount.findOne({
+//             where: { userId: user.id, platform: platformName, isActive: true },
+//             transaction: innerTx 
+//         });
 
-//         // 2️⃣ Publish to LinkedIn
-//         const result = await publishToLinkedIn(
-//           accessToken, // ✅ already from env
+//         if (socialAccount) {
+//             accessToken = socialAccount.accessToken;
+//             platformUserId = socialAccount.platformUserId;
+//         } else if (platformName === "linkedin" && user.linkedinAccessToken) {
+//             // Legacy fallback
+//             accessToken = user.linkedinAccessToken;
+//             platformUserId = user.linkedinProfileId;
+//         }
+
+//         if (!accessToken) {
+//             console.warn(`Skipping ${platformName} post for user ${user.id} - no credentials found.`);
+//             await innerTx.rollback();
+//             continue;
+//         }
+
+//         // 4️⃣ Publish
+//         console.log(`🚀 Publishing to ${platformName}...`);
+//         const result = await platform.publishPost(
+//           accessToken,
 //           content,
-//           PostUserId,
-//           PostUserEmail
+//           platformUserId
 //         );
 
-//         // 3️⃣ If successful, record in ScheduledPost
+//         // 5️⃣ Record result
 //         if (result.success) {
 //           await ScheduledPost.create(
 //             {
 //               scheduleId: schedule.id,
 //               topicId: topic.id,
-//               content: content.post,
+//               content: content,
 //               scheduledFor: scheduledDate,
 //               isActive: false,
 //               status: "published",
 //               publishedAt: now,
-//               linkedinPostId: result.postId,
+//               externalPostId: result.postId,
+//               linkedinPostId: platformName === 'linkedin' ? result.postId : null,
+//               platform: platformName,
 //               userId: user.id,
 //             },
 //             { transaction: innerTx }
@@ -118,19 +146,14 @@
 //           );
 
 //           await innerTx.commit();
-
-//           console.log(
-//             `✅ Posted successfully for "${topic.title}" on LinkedIn`
-//           );
+//           console.log(`✅ Posted successfully for "${topic.title}" on ${platformName}`);
 //         } else {
 //           await innerTx.rollback();
-//           console.warn(
-//             `❌ Failed to publish for "${topic.title}": ${result.error}`
-//           );
+//           console.warn(`❌ Failed to publish for "${topic.title}": ${result.error}`);
 //         }
 //       } catch (err) {
 //         await innerTx.rollback();
-//         console.error(`🚨 Error publishing "${topic.title}":`, err);
+//         console.error(`🚨 Error processing "${topic.title}":`, err);
 //       }
 //     }
 

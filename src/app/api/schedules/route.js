@@ -1,5 +1,5 @@
 import { Schedule, ScheduledPost, Topic } from "@/lib/models.js";
-import { generateLinkedInPost } from "@/lib/gemini.js";
+import { generateLinkedInPost, generateSocialPost } from "@/lib/gemini.js";
 import { generateImage } from "@/lib/image.js";
 
 // GET all schedules for a topic
@@ -28,7 +28,7 @@ export async function GET(request) {
 // POST create new schedule
 export async function POST(request) {
   try {
-    const { userId, topicId, frequency, scheduledTime, dayOfWeek } =
+    const { userId, topicId, frequency, scheduledTime, dayOfWeek, platform } =
       await request.json();
 
     if (!topicId || !frequency || !scheduledTime) {
@@ -44,6 +44,7 @@ export async function POST(request) {
       frequency,
       scheduledTime,
       dayOfWeek,
+      platform: platform || "linkedin",
       isActive: true,
       lastGeneratedAt: new Date(),
     });
@@ -58,20 +59,25 @@ export async function POST(request) {
     // 3️⃣ Get topic for content
     const topic = await Topic.findByPk(topicId);
 
-    const content = await generateLinkedInPost(
+    const userPersona = {}; // TODO: fetch from user if needed, or topic.User...
+
+    const content = await generateSocialPost(
       topic.title,
       topic.description ||
-      "Generate a short engaging linkedin-style post like a professional in the educational tech sector."
+      "Generate a short engaging social post.",
+      userPersona,
+      platform || "linkedin"
     );
 
     let imageBase64 = null;
     if (topic.includeImage) {
+      // ... (image logic remains same, maybe prompt tweaking for platform later)
       try {
         console.log("Generating image for topic:", topic.title);
         // Use Gemini to create an image prompt based on the topic
         const imagePrompt = `Generate a prompt for an AI image generator to create a professional LinkedIn post image about: "${topic.title}". The image should be modern, clean, and suitable for a business audience. No text in the image. Return only the prompt string.`;
 
-        const promptResponse = await generateLinkedInPost(imagePrompt, "Keep it under 200 characters, descriptive but concise.");
+        const promptResponse = await generateSocialPost(imagePrompt, "Keep it under 200 characters, descriptive but concise.", {}, "linkedin");
         const finalPrompt = promptResponse.post || `${topic.title} professional linkedin background, clean, modern, 4k`;
 
         console.log("Image Prompt:", finalPrompt);
@@ -92,6 +98,7 @@ export async function POST(request) {
       isActive: false,
       status: "pending",
       imageBase64: imageBase64,
+      platform: platform || "linkedin",
     });
 
     return Response.json(schedule, { status: 201 });

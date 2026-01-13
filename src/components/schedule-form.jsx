@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 
 export function ScheduleForm({ topicId, onScheduleCreated }) {
   const [frequency, setFrequency] = useState("daily");
+  const [platform, setPlatform] = useState("linkedin");
   const [time, setTime] = useState("09:00");
   const [dayOfWeek, setDayOfWeek] = useState("0");
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +37,7 @@ export function ScheduleForm({ topicId, onScheduleCreated }) {
           userId: session?.user.id,
           topicId,
           frequency,
+          platform,
           scheduledTime: time,
           dayOfWeek: frequency === "weekly" ? Number.parseInt(dayOfWeek) : null,
         }),
@@ -49,7 +51,7 @@ export function ScheduleForm({ topicId, onScheduleCreated }) {
       setDayOfWeek("0");
       toast({
         title: "Schedule Created",
-        description: "The schedule has been created successfully.",
+        description: `Your ${platform} schedule has been created successfully.`,
       });
     } catch (err) {
       setError(err.message || "Failed to create schedule");
@@ -68,6 +70,23 @@ export function ScheduleForm({ topicId, onScheduleCreated }) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Main row */}
         <div className="flex flex-col md:flex-row gap-3">
+          {/* Platform */}
+          <div className="flex-1 space-y-2">
+            <label className="text-sm font-medium">Platform</label>
+            <Select value={platform} onValueChange={setPlatform}>
+              <SelectTrigger className="bg-background w-full cursor-pointer">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+                <SelectItem value="facebook">Facebook</SelectItem>
+                <SelectItem value="twitter">Twitter</SelectItem>
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Frequency */}
           <div className="flex-1 space-y-2">
             <label className="text-sm font-medium">Frequency</label>

@@ -33,9 +33,6 @@ import { PremiumModal } from "@/components/premium-modal";
 import AdminPage from "../admin/page";
 import { TopicsSkeleton } from "@/components/skeletons";
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
-
 const INITIAL_DELAY = 2000;
 const MAX_DELAY = 15000;
 
@@ -140,11 +137,8 @@ export default function Dashboard() {
       if (isConnectedRef.current) return;
 
       try {
-        if (!BACKEND_URL) {
-          throw new Error("BACKEND_URL is undefined");
-        }
 
-        const res = await fetch(`${BACKEND_URL}/db-status`, {
+        const res = await fetch("/api/cron/cron-status", {
           cache: "no-store",
         });
 

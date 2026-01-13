@@ -25,7 +25,7 @@ const STEPS = [
     },
     {
         id: "connect",
-        title: "Connect LinkedIn",
+        title: "Connect to Socials",
         description: "Link your account to enable one-click publishing and automated scheduling.",
         icon: LinkIcon,
         color: "text-blue-700",

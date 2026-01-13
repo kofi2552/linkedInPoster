@@ -141,13 +141,13 @@ export default function LandingPage() {
                         height={32}
                         alt="User"
                         className="opacity-0" /* Using logo as placeholder if no user images */
+                        style={{ width: 'auto', height: 'auto' }}
                       />
                       <div
-                        className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br ${
-                          i % 2 === 0
-                            ? "from-blue-400 to-blue-600"
-                            : "from-purple-400 to-purple-600"
-                        }`}
+                        className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white bg-gradient-to-br ${i % 2 === 0
+                          ? "from-blue-400 to-blue-600"
+                          : "from-purple-400 to-purple-600"
+                          }`}
                       >
                         {String.fromCharCode(64 + i)}
                       </div>
@@ -164,107 +164,63 @@ export default function LandingPage() {
         </section>
 
         {/* Creative Bento Features Section */}
-        <section className="py-20 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight">
+        <section id="key-features" className="py-24 bg-background relative overflow-hidden">
+          {/* Subtle background decoration */}
+          <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] mask-image-b-0 pointer-events-none" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
                 Everything you need to go viral
               </h2>
-              <p className="text-muted-foreground text-lg">
-                Powerful tools wrapped in a beautiful, distraction-free
-                interface.
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Powerful tools, reduced to the essentials. PostPilot gives you the advantage of a full content team in one intuitive interface.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 max-w-5xl mx-auto h-auto md:h-[480px]">
-              {/* Feature 1: Main (Persona) - 2x2 */}
-              <Card className="md:col-span-2 md:row-span-2 p-6 flex flex-col justify-between overflow-hidden relative group border-none shadow-lg bg-gradient-to-br from-white to-blue-50/50 dark:from-zinc-900 dark:to-zinc-900/50">
-                <div className="absolute top-0 right-0 p-8 opacity-5 md:opacity-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12">
-                  <Users className="w-48 h-48 text-blue-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+              {/* Feature 1 */}
+              <Card className="p-6 border bg-card hover:bg-accent/50 transition-colors duration-300 group">
+                <div className="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-6 h-6" />
                 </div>
-                <div className="relative z-10 space-y-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-xl font-bold">Persona-Driven AI</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Most AI sounds generic. PostPilot is different. You define
-                    your tone, profession, and industry, and we custom-tune
-                    every single post to match your unique voice. It's like
-                    having a ghostwriter who actually knows you.
-                  </p>
-                </div>
-                <div className="mt-2 relative h-40 bg-background/50 backdrop-blur rounded-lg border border-border/50 p-3 shadow-sm group-hover:translate-y-[-3px] transition-transform duration-500">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-[10px] font-bold">
-                      You
-                    </div>
-                    <div className="h-1.5 w-20 bg-muted rounded-full" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="h-1.5 w-full bg-muted/50 rounded-full" />
-                    <div className="h-1.5 w-5/6 bg-muted/50 rounded-full" />
-                    <div className="h-1.5 w-4/6 bg-muted/50 rounded-full" />
-                  </div>
-                  <div className="absolute bottom-3 right-3 text-[10px] text-blue-600 font-medium flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" /> Optimized for you
-                  </div>
-                </div>
-              </Card>
-
-              {/* Feature 2: Scheduling - 1x2 */}
-              <Card className="md:col-span-1 md:row-span-2 p-5 flex flex-col relative group border-none shadow-md bg-white dark:bg-zinc-900">
-                <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] mask-image-b-0" />
-                <div className="relative z-10 flex-1 flex flex-col">
-                  <div className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600 mb-3">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <h3 className="text-base font-bold mb-1">Smart Schedule</h3>
-                  <p className="text-xs text-muted-foreground mb-4">
-                    Queue up weeks of content. We'll handle the posting.
-                  </p>
-
-                  {/* Calendar Visual */}
-                  <div className="flex-1 bg-muted/20 rounded-lg border border-border/50 p-2 space-y-1.5 group-hover:bg-muted/30 transition-colors">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 p-1.5 bg-background rounded border border-border/50 shadow-sm"
-                      >
-                        <div className="w-0.5 h-5 rounded-full bg-green-500" />
-                        <div className="space-y-1 flex-1">
-                          <div className="h-1 w-10 bg-muted rounded-full" />
-                          <div className="h-1 w-16 bg-muted/50 rounded-full" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
-
-              {/* Feature 3: Batching - 1x1 */}
-              <Card className="md:col-span-1 p-5 flex flex-col justify-center border-none shadow-md bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-zinc-900">
-                <div className="w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 mb-2">
-                  <Wand2 className="w-4 h-4" />
-                </div>
-                <h3 className="text-base font-bold">Topic Batching</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Generate 50+ ideas in 30 seconds.
+                <h3 className="text-lg font-bold mb-2">Persona-Driven AI</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Define your unique professional voice. Our AI doesn't just write; it mimics your tone, industry nuances, and personality perfectly.
                 </p>
               </Card>
 
-              {/* Feature 4: Analytics (Placeholder/Visual) - 1x1 */}
-              <Card className="md:col-span-1 p-5 flex flex-col justify-center border-none shadow-md bg-white dark:bg-zinc-900 overflow-hidden relative group">
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-20 h-20 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-colors" />
-                <div className="relative z-10">
-                  <div className="w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 mb-2">
-                    <Zap className="w-4 h-4" />
-                  </div>
-                  <h3 className="text-base font-bold">Viral Hooks</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    AI trained on top performing posts.
-                  </p>
+              {/* Feature 2 */}
+              <Card className="p-6 border bg-card hover:bg-accent/50 transition-colors duration-300 group">
+                <div className="h-12 w-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="w-6 h-6" />
                 </div>
+                <h3 className="text-lg font-bold mb-2">Smart Scheduling</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Plan weeks of content in minutes. Our scheduler ensures your posts go live exactly when your audience is most active.
+                </p>
+              </Card>
+
+              {/* Feature 3 */}
+              <Card className="p-6 border bg-card hover:bg-accent/50 transition-colors duration-300 group">
+                <div className="h-12 w-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Wand2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">Topic Batching</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Never run out of ideas. Generate 50+ relevant, trending post topics in under 30 seconds with a single click.
+                </p>
+              </Card>
+
+              {/* Feature 4 */}
+              <Card className="p-6 border bg-card hover:bg-accent/50 transition-colors duration-300 group">
+                <div className="h-12 w-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">Viral Hooks</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Start strong. We utilize data from top-performing posts to generate hooks that stop the scroll and drive engagement.
+                </p>
               </Card>
             </div>
           </div>

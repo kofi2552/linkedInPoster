@@ -20,8 +20,8 @@ import { AnalyticsTracker } from "@/components/analytics-tracker";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
         <SessionWrapper>
           <ThemeProvider
             attribute="class"

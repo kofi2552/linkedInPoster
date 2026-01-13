@@ -1,7 +1,5 @@
-import { ScheduledPost, User } from "@/lib/models.js";
-import { publishNowToLinkedIn } from "@/lib/linkedin.js";
-
-const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
+import { ScheduledPost, User, SocialAccount } from "@/lib/models.js";
+import { getPlatform } from "@/lib/platforms/index.js";
 
 export async function POST(req, { params }) {
   try {
@@ -17,39 +15,42 @@ export async function POST(req, { params }) {
       return Response.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Find the user who owns the post
-    const user = await User.findByPk(post.userId);
+    const platformName = post.platform || "linkedin";
+    const platform = getPlatform(platformName);
 
-    console.log("post user: ", user);
+    // 1. Try to find credentials in SocialAccount (new clean way)
+    let account = await SocialAccount.findOne({
+      where: { userId: post.userId, platform: platformName, isActive: true }
+    });
 
-    if (!user || !user.linkedinAccessToken) {
+    let accessToken, platformUserId;
+
+    if (account) {
+      accessToken = account.accessToken;
+      platformUserId = account.platformUserId;
+    } else if (platformName === "linkedin") {
+      // 2. Fallback to User model (legacy way)
+      const user = await User.findByPk(post.userId);
+      if (user && user.linkedinAccessToken) {
+        accessToken = user.linkedinAccessToken;
+        platformUserId = user.linkedinProfileId;
+      }
+    }
+
+    if (!accessToken) {
       return Response.json(
-        { error: "User not connected to LinkedIn" },
+        { error: `User not connected to ${platformName}` },
         { status: 401 }
       );
     }
 
-    const PostUserId = user?.linkedinProfileId;
-    const PostUserEmail = user?.email;
+    console.log(`🚀 Publishing post for user ${post.userId} to ${platformName}`);
 
-    console.log(
-      `🚀 Publishing post for user with id: ${PostUserId} and email: ${PostUserEmail} to LinkedIn`
-    );
-
-    if (!PostUserEmail) {
-      console.error("🚨 User email missing");
-      return Response.json({ error: "User email missing" }, { status: 500 });
-    }
-    // Publish to LinkedIn immediately
-    console.log("Publishing post. content length:", post.content.length);
-    console.log("Has imageBase64?", !!post.imageBase64, post.imageBase64 ? post.imageBase64.length : 0);
-
-    const result = await publishNowToLinkedIn(
-      user.linkedinAccessToken, // ✅ Use the user's stored access token
+    const result = await platform.publishPost(
+      accessToken,
       post.content,
-      PostUserId,
-      PostUserEmail,
-      post.imageBase64 // Pass the image data if available
+      platformUserId,
+      post.imageBase64
     );
 
     if (result.success) {
@@ -57,18 +58,19 @@ export async function POST(req, { params }) {
         isActive: true,
         status: "published",
         publishedAt: new Date(),
-        linkedinPostId: result.postId,
+        externalPostId: result.postId,
+        linkedinPostId: platformName === 'linkedin' ? result.postId : post.linkedinPostId, // keep legacy field updated
       });
 
-      console.log(`✅ Published post ${post.id} for user ${user.id}`);
+      console.log(`✅ Published post ${post.id} for user ${post.userId} on ${platformName}`);
       return Response.json({ success: true, post });
     } else {
-      await post.update({ status: "failed" });
+      await post.update({ status: "failed", errorMessage: result.error });
       console.warn(`❌ Failed to publish post ${post.id}: ${result.error}`);
       return Response.json({ error: result.error }, { status: 500 });
     }
   } catch (error) {
-    console.log("🚨 Error publishing post:", error);
+    console.error("🚨 Error publishing post:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

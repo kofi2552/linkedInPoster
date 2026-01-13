@@ -1,10 +1,50 @@
 
-export async function generateLinkedInPost(topic, description = "", userPersona = {}) {
+
+export async function generateSocialPost(topic, description = "", userPersona = {}, platform = "linkedin") {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
+  let platformInstructions = "";
+  switch (platform) {
+    case "twitter":
+      platformInstructions = `
+      - Max 280 characters.
+      - Use 2-3 relevant hashtags.
+      - Casual, concise, and engaging style.
+      - No intro/outro. Only the tweet text.`;
+      break;
+    case "facebook":
+      platformInstructions = `
+      - Engaging and conversational tone.
+      - Can be longer than Twitter but keep it concise (under 500 chars).
+      - Use 1-2 hashtags.
+      - Encourages interaction (likes/comments).`;
+      break;
+    case "instagram":
+      platformInstructions = `
+      - Visually descriptive caption (since it accompanies an image).
+      - Use line breaks and emojis.
+      - Include 5-10 relevant hashtags at the bottom.
+      - Engaging and lifestyle-focused tone.`;
+      break;
+    case "tiktok":
+      platformInstructions = `
+      - Short, punchy video caption.
+      - Max 150 characters (ideal for readability).
+      - Use trending hashtags.
+      - Call to action (e.g., "Link in bio", "Follow for more").`;
+      break;
+    case "linkedin":
+    default:
+      platformInstructions = `
+      - Professional and engaging tone.
+      - Max 600 characters.
+      - 2-3 relevant hashtags.
+      - No emojis (clean text).`;
+      break;
+  }
 
   try {
-    // 1️⃣ Generate post text and image prompt
+    // 1️⃣ Generate post text
     const textResponse = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
       {
@@ -18,8 +58,8 @@ export async function generateLinkedInPost(topic, description = "", userPersona 
             {
               parts: [
                 {
-                  text: `Using the following template, generate an engaging LinkedIn-style post using the title "${topic}". 
-                  Maintain the structure and this tone: ${description || userPersona.tone || "professional"}. 
+                  text: `Using the following template, generate an engaging social media post for ${platform} using the title "${topic}". 
+                  Maintain this tone: ${description || userPersona.tone || "professional"}. 
               
                   Author Context (The Persona):
                   - Profession: ${userPersona.profession || "Industry Professional"}
@@ -28,21 +68,12 @@ export async function generateLinkedInPost(topic, description = "", userPersona 
                   - Voice/Tone: ${userPersona.tone || "Professional, engaging, and authentic"}
 
                   Follow these Requirements strictly:
-                - Construct a unique post title that captures attention not more than 150 characters.
-                - The viral post should have a body (with paragraphs -   at least 2)
-                - The post must be relevant to LinkedIn audiences in the ${userPersona.industry || "General Business"} industry.
-                - Write FROM the perspective of a ${userPersona.profession || "professional"}, incorporating their expertise.
-                - Remove any greetings or sign-offs
-                - Remove any extra headings or subtitles
-                - Focus solely on the post content
-                - Use a clear and concise writing style
-                - Maximum 600 characters
-                - Minimum 500 characters
-                - Professional and engaging tone
-                - Include relevant hashtags (2-3)
-                - No emojis , only output the clean words, no noise characters or decorative symbols.
-
-                Return only the post content, nothing else.`,
+                  ${platformInstructions}
+                  
+                  - Remove any greetings or sign-offs
+                  - Remove any extra headings or subtitles
+                  - Focus solely on the post content
+                  - Return only the post content, nothing else.`,
                 },
               ],
             },
@@ -66,10 +97,13 @@ export async function generateLinkedInPost(topic, description = "", userPersona 
 
     return { post };
   } catch (error) {
-    console.error("Gemini Image Generation Error:", error);
-    throw new Error("Failed to generate AI content or image");
+    console.error("Gemini Generation Error:", error);
+    throw new Error("Failed to generate AI content");
   }
 }
+
+// Legacy export for backward compatibility
+export const generateLinkedInPost = (topic, desc, persona) => generateSocialPost(topic, desc, persona, "linkedin");
 
 export async function generateBatchPosts(topics) {
   const posts = [];

@@ -86,6 +86,70 @@ export const User = sequelize.define(
   }
 );
 
+// SocialAccount model
+export const SocialAccount = sequelize.define(
+  "SocialAccount",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "id",
+      },
+    },
+    platform: {
+      type: DataTypes.ENUM("linkedin", "facebook", "twitter", "tiktok", "instagram"),
+      allowNull: false,
+    },
+    platformUserId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    accessToken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    refreshToken: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    tokenExpiresAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    profileName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    profilePictureUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    timestamps: true,
+    tableName: "social_accounts",
+  }
+);
+
 // Topic model
 export const Topic = sequelize.define(
   "Topic",
@@ -155,6 +219,10 @@ export const Schedule = sequelize.define(
         model: Topic,
         key: "id",
       },
+    },
+    platform: {
+      type: DataTypes.ENUM("linkedin", "facebook", "twitter", "tiktok", "instagram"),
+      defaultValue: "linkedin",
     },
     frequency: {
       type: DataTypes.ENUM("daily", "weekly", "monthly"),
@@ -240,6 +308,14 @@ export const ScheduledPost = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    platform: {
+      type: DataTypes.ENUM("linkedin", "facebook", "twitter", "tiktok", "instagram"),
+      defaultValue: "linkedin",
+    },
+    externalPostId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     retryCount: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
@@ -302,6 +378,9 @@ export const Feedback = sequelize.define(
 // Define associations
 User.hasMany(Feedback, { foreignKey: "userId", onDelete: "CASCADE" });
 Feedback.belongsTo(User, { foreignKey: "userId" });
+
+User.hasMany(SocialAccount, { foreignKey: "userId", onDelete: "CASCADE" });
+SocialAccount.belongsTo(User, { foreignKey: "userId" });
 
 User.hasMany(Topic, { foreignKey: "userId", onDelete: "CASCADE" });
 Topic.belongsTo(User, { foreignKey: "userId" });
@@ -367,3 +446,28 @@ export const ActivityLog = sequelize.define(
 
 User.hasMany(ActivityLog, { foreignKey: "userId", onDelete: "CASCADE" });
 ActivityLog.belongsTo(User, { foreignKey: "userId" });
+
+// CronHeartbeat model
+export const CronHeartbeat = sequelize.define(
+  "CronHeartbeat",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    lastRunAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    status: {
+      type: DataTypes.STRING, // 'success', 'failed'
+      defaultValue: 'success'
+    }
+  },
+  {
+    timestamps: false,
+    tableName: "cron_heartbeats",
+  }
+);
+

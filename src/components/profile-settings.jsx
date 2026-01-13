@@ -110,11 +110,10 @@ export function ProfileSettings({
         <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
           <div className="flex items-center gap-3">
             <div
-              className={`p-2 rounded-full ${
-                isPremium
-                  ? "bg-amber-100 text-amber-600"
-                  : "bg-gray-100 text-gray-600"
-              }`}
+              className={`p-2 rounded-full ${isPremium
+                ? "bg-amber-100 text-amber-600"
+                : "bg-gray-100 text-gray-600"
+                }`}
             >
               {isPremium ? (
                 <Crown className="w-5 h-5" />
@@ -134,8 +133,20 @@ export function ProfileSettings({
             </div>
           </div>
           {isPremium ? (
-            <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
-              <ShieldCheck className="w-3.5 h-3.5" /> Active
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+                <ShieldCheck className="w-3.5 h-3.5" /> Active
+              </div>
+              <div className="my-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8 cursor-pointer"
+                  onClick={() => window.location.href = "/connect"}
+                >
+                  Connect to other socials
+                </Button>
+              </div>
             </div>
           ) : (
             <Button

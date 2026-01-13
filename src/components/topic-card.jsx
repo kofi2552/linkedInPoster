@@ -257,9 +257,9 @@ export function TopicCard({ topic, onScheduleCreated, onDeleted, isLinkedInConne
                 <div className="p-3 bg-white rounded-full shadow-sm">
                   <Loader2 className="w-6 h-6 text-destructive animate-pulse" />
                 </div>
-                <h4 className="font-semibold text-destructive">LinkedIn Connection Required</h4>
+                <h4 className="font-semibold text-destructive">Socials Connection Required</h4>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  You need to connect your LinkedIn account before you can schedule posts for this topic.
+                  You need to connect your Socials account before you can schedule posts for this topic.
                 </p>
                 <Button
                   onClick={() => window.location.href = "/connect"}

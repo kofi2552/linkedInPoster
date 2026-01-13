@@ -43,6 +43,7 @@ export function DemoCard() {
                                     height={40}
                                     alt="Avatar"
                                     className="rounded-full"
+                                    style={{ width: 'auto', height: 'auto' }}
                                 />
                             </div>
                         </div>
@@ -69,19 +70,11 @@ export function DemoCard() {
             <div className="p-4 space-y-3">
                 <div className="space-y-2 text-sm leading-relaxed text-foreground/90">
                     <p>Stop overthinking your content strategy. 🛑</p>
-                    <p>
-                        Most professionals struggle with consistency because they try to write
-                        every single day from scratch. That's a recipe for burnout.
-                    </p>
+
                     <p className="font-medium text-blue-600">
                         Instead, try batching with AI.
                     </p>
-                    {/* <p>
-                        1. Brainstorm (Monday) 🧠<br />
-                        2. Draft with AI ✍️<br />
-                        3. Schedule 🗓️
-                    </p>
-                    <p>Consistency is key. 🚀 #ContentStrategy #Growth</p> */}
+
                 </div>
 
                 {/* Interactive Visual */}
@@ -105,7 +98,7 @@ export function DemoCard() {
             </div>
 
             {/* Interactive Stats */}
-            <div className="px-3 py-2 flex items-center justify-between text-[10px] text-muted-foreground border-t bg-card/30">
+            <div className="px-3 py-1 flex items-center justify-between text-[10px] text-muted-foreground border-t bg-card/30">
                 <div className="flex items-center gap-1">
                     <div className="flex -space-x-1">
                         <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center ring-2 ring-white">

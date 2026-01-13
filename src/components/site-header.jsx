@@ -10,11 +10,11 @@ export function SiteHeader() {
     const { data: session } = useSession();
 
     return (
-        <nav className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <nav className="w-full mx-auto border-b bg-background/95 backdrop-blur sticky top-0 z-50">
+            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center">
                     <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-                        <Image src="/images/PP_logo.png" alt="PostPilot" width={32} height={32} />
+                        <Image src="/images/PP_logo.png" alt="PostPilot" width={32} height={32} style={{ width: 'auto', height: 'auto' }} />
                         <span>PostPilot</span>
                     </Link>
                 </div>
@@ -31,7 +31,7 @@ export function SiteHeader() {
                     </div>
                     {session ? (
                         <Link href="/dashboard">
-                            <Button>Dashboard</Button>
+                            <Button className="cursor-pointer">Dashboard</Button>
                         </Link>
                     ) : (
                         <Link href="/login">

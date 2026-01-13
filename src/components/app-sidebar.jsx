@@ -105,6 +105,7 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                                     height={60}
                                     priority
                                     className="object-contain"
+                                    style={{ width: 'auto', height: 'auto' }}
                                 />
                             </div>
 
@@ -181,7 +182,7 @@ export function AppSidebar({ activeView, onViewChange, user, isLinkedInConnected
                                     !
                                 </div>
                                 <span className="font-semibold group-data-[collapsible=icon]:hidden">
-                                    Connect LinkedIn
+                                    Connect Socials
                                 </span>
                             </div>
                         </SidebarMenuButton>

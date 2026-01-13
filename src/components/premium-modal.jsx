@@ -9,7 +9,7 @@ export function PremiumModal({ isOpen, onClose, userPhone, userId }) {
 
     const handleUpgradeClick = () => {
         // Construct WhatsApp message
-        const message = encodeURIComponent(`Hi, I'd like to upgrade my account (ID: ${userId}) to Premium!`);
+        const message = encodeURIComponent(`Hi, I'd like to upgrade my account (phone: ${userPhone}) to Premium!`);
         const whatsappUrl = `https://wa.me/233594955819?text=${message}`;
         window.open(whatsappUrl, "_blank");
     };
